@@ -1,0 +1,2695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HavenCraft — AI-Powered Interior Design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Mulish:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --cream:     #2A1F0E;
+  --parchment: #3D2E18;
+  --gold:      #8B6914;
+  --gold2:     #A07820;
+  --gold-light:#C49A3A;
+  --moss:      #3A5A2A;
+  --sage:      #527A38;
+  --sage-light:#7BA85A;
+  --forest:    #2A3D1A;
+  --bg-base:   #F5F0EA;
+  --bg-mid:    #EDE5D8;
+  --bg-deep:   #E4D8C8;
+  --warm-brown:#8B6B3A;
+  --glass:     rgba(255,252,245,0.65);
+  --glass-b:   rgba(160,120,32,0.15);
+  --font-serif: 'Playfair Display', 'Georgia', serif;
+  --font-disp:  'DM Serif Display', serif;
+  --font-body:  'Mulish', sans-serif;
+  --font-italic:'Cormorant Garamond', serif;
+  --ease: cubic-bezier(0.23, 1, 0.32, 1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background: linear-gradient(160deg, #F8F3EC 0%, #F0E8D8 30%, #EBE0CF 60%, #F2EBE0 100%);
+  color: var(--cream);
+  font-family:var(--font-body);
+  font-weight:300;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  cursor:none;
+  min-height:100vh;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(180,220,140,0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(220,160,180,0.07) 0%, transparent 50%),
+    radial-gradient(circle at 60% 10%, rgba(200,180,240,0.06) 0%, transparent 40%);
+  opacity:0.6;pointer-events:none;z-index:1;
+}
+#cur{position:fixed;width:10px;height:10px;border-radius:50%;background:var(--gold2);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s,opacity .2s;mix-blend-mode:multiply;}
+#cur-ring{position:fixed;width:36px;height:36px;border:1.5px solid rgba(160,120,32,0.45);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .35s,height .35s,border-color .3s;}
+body:has(a:hover) #cur-ring,body:has(button:hover) #cur-ring{width:52px;height:52px;border-color:var(--gold2);}
+#sp{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--sage-light),var(--gold2));z-index:9000;width:0;transition:width .1s;}
+.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(90px);transition:all 2s ease;}
+.orb1{width:700px;height:700px;background:radial-gradient(circle,rgba(144,200,120,0.18) 0%,rgba(180,230,150,0.08) 40%,transparent 70%);top:-12%;left:-12%;}
+.orb2{width:600px;height:600px;background:radial-gradient(circle,rgba(220,160,190,0.15) 0%,rgba(240,180,200,0.07) 40%,transparent 70%);bottom:-12%;right:-8%;}
+.orb3{width:500px;height:500px;background:radial-gradient(circle,rgba(180,160,230,0.12) 0%,rgba(200,190,240,0.06) 40%,transparent 70%);top:38%;left:55%;}
+
+/* ── Nav ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:800;
+  display:flex;align-items:center;gap:2rem;
+  padding:1.6rem 4rem;
+  background:rgba(248,243,236,0.82);
+  backdrop-filter:blur(24px);
+  border-bottom:1px solid rgba(160,120,32,0.12);
+  transition:padding .4s var(--ease),background .4s;
+  box-shadow: 0 1px 32px rgba(160,120,32,0.06);
+}
+nav.scrolled{padding-top:1.1rem;padding-bottom:1.1rem;background:rgba(248,243,236,0.95);}
+.logo{font-family:var(--font-disp);font-size:1.6rem;color:var(--forest);text-decoration:none;letter-spacing:.03em;cursor:pointer;}
+.logo span{color:var(--gold2);font-style:italic;}
+.nav-links{list-style:none;display:flex;gap:0;margin-left:auto;}
+.nav-links a{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(42,31,14,0.45);text-decoration:none;padding:.55rem .9rem;border-radius:2px;transition:color .25s,background .25s;cursor:pointer;font-weight:500;position:relative;}
+.nav-links a::after{content:'';position:absolute;bottom:0;left:.9rem;right:.9rem;height:1px;background:var(--gold2);transform:scaleX(0);transition:transform .3s var(--ease);}
+.nav-links a:hover,.nav-links a.active{color:var(--gold2);}
+.nav-links a:hover::after,.nav-links a.active::after{transform:scaleX(1);}
+.nav-cta{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,var(--gold2),var(--gold));padding:.6rem 1.5rem;border-radius:30px;text-decoration:none;font-weight:600;transition:all .3s;white-space:nowrap;box-shadow:0 4px 20px rgba(160,120,32,0.28);}
+.nav-cta:hover{box-shadow:0 6px 28px rgba(160,120,32,0.42);transform:translateY(-1px);}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:.3rem;margin-left:auto;}
+.hamburger span{display:block;width:22px;height:1px;background:var(--forest);transition:all .3s;}
+.mob-nav{display:none;position:fixed;inset:0;background:rgba(245,240,234,0.98);z-index:790;flex-direction:column;align-items:center;justify-content:center;gap:2rem;}
+.mob-nav.open{display:flex;}
+.mob-nav a{font-family:var(--font-disp);font-style:italic;font-size:2.2rem;color:var(--forest);text-decoration:none;letter-spacing:.04em;transition:color .2s;cursor:pointer;}
+.mob-nav a:hover{color:var(--gold2);}
+.page{display:none;}
+.page.active{display:block;}
+section{padding:7rem 0;}
+.inner{max-width:1200px;margin:0 auto;padding:0 4rem;}
+.sec-label{font-family:var(--font-italic);font-style:italic;font-size:1rem;color:var(--gold2);margin-bottom:1rem;display:flex;align-items:center;gap:.8rem;font-weight:300;}
+.sec-label::before{content:'✦';font-style:normal;font-size:.7rem;}
+.sec-title{font-family:var(--font-serif);font-size:clamp(2.2rem,4vw,3.8rem);font-weight:400;line-height:1.08;color:var(--forest);}
+.sec-title em{color:var(--gold2);font-style:italic;}
+.sec-body{font-size:.95rem;color:rgba(42,31,14,0.55);line-height:1.95;font-weight:300;}
+.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(160,120,32,0.2),transparent);}
+.btn-p{display:inline-flex;align-items:center;gap:.7rem;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#fff;padding:.9rem 2.3rem;border-radius:40px;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;text-decoration:none;transition:all .35s var(--ease);cursor:pointer;border:none;box-shadow:0 4px 24px rgba(160,120,32,0.28);}
+.btn-p:hover{transform:translateY(-3px);box-shadow:0 8px 36px rgba(160,120,32,0.42);}
+.btn-g{display:inline-flex;align-items:center;gap:.7rem;border:1px solid rgba(160,120,32,0.4);color:var(--gold2);padding:.9rem 2.3rem;border-radius:40px;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;font-weight:500;text-decoration:none;transition:all .35s var(--ease);cursor:pointer;background:rgba(160,120,32,0.05);}
+.btn-g:hover{border-color:var(--gold2);background:rgba(160,120,32,0.12);transform:translateY(-3px);}
+.card{background:rgba(255,252,245,0.7);border:1px solid rgba(160,120,32,0.14);border-radius:12px;backdrop-filter:blur(8px);transition:border-color .4s,transform .4s,box-shadow .4s;box-shadow: 0 2px 16px rgba(160,120,32,0.07);}
+.card:hover{border-color:rgba(160,120,32,0.32);transform:translateY(-5px);box-shadow:0 24px 64px rgba(42,31,14,0.10),0 0 40px rgba(160,120,32,0.06);}
+.ph{padding:12rem 4rem 6rem;max-width:960px;margin:0 auto;text-align:center;}
+.ph .tag{display:inline-block;font-family:var(--font-italic);font-style:italic;font-size:1rem;color:var(--gold2);border:1px solid rgba(160,120,32,0.3);padding:.4rem 1.4rem;border-radius:30px;margin-bottom:2rem;background:rgba(160,120,32,0.05);}
+.ph h1{font-family:var(--font-serif);font-size:clamp(2.8rem,5.5vw,5.2rem);font-weight:400;line-height:1.05;color:var(--forest);margin-bottom:1.5rem;}
+.ph h1 em{color:var(--gold2);font-style:italic;}
+.ph p{font-size:1.1rem;color:rgba(42,31,14,0.52);max-width:620px;margin:0 auto;line-height:1.9;font-weight:300;}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .9s var(--ease),transform .9s var(--ease);}
+.reveal.visible{opacity:1;transform:none;}
+.d1{transition-delay:.15s;}.d2{transition-delay:.3s;}.d3{transition-delay:.45s;}.d4{transition-delay:.6s;}
+
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+@keyframes glow{0%,100%{opacity:.6;}50%{opacity:1;}}
+@keyframes leafSway{0%,100%{transform:rotate(-3deg);}50%{transform:rotate(3deg);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes slideUp{from{opacity:0;transform:translateY(36px);}to{opacity:1;transform:none;}}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+@keyframes shimmer{0%{background-position:-200% center;}100%{background-position:200% center;}}
+@keyframes rotateSlow{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+@keyframes pulseRing{0%,100%{transform:scale(1);opacity:.5;}50%{transform:scale(1.05);opacity:1;}}
+
+/* ══ HERO ══ */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;text-align:center;}
+canvas#bg-canvas{position:absolute;inset:0;pointer-events:none;z-index:0;}
+.hero-halo{position:absolute;width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,rgba(144,200,120,0.12) 0%,rgba(220,180,140,0.06) 40%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);animation:glow 8s ease-in-out infinite;pointer-events:none;z-index:0;}
+.hero-ring{position:absolute;width:520px;height:520px;border-radius:50%;border:1px solid rgba(160,120,32,0.09);top:50%;left:50%;transform:translate(-50%,-50%);animation:leafSway 12s ease-in-out infinite;pointer-events:none;z-index:0;}
+.hero-ring2{width:320px;height:320px;border:1px solid rgba(100,140,80,0.10);animation-delay:4s;}
+.hero-content{position:relative;z-index:2;max-width:960px;padding:0 2rem;}
+.hero-badge{display:inline-flex;align-items:center;gap:.7rem;font-family:var(--font-italic);font-style:italic;font-size:.95rem;color:var(--gold2);border:1px solid rgba(160,120,32,0.28);padding:.55rem 1.6rem;border-radius:40px;margin-bottom:2.5rem;backdrop-filter:blur(8px);animation:fadeIn 1s ease .3s both;background:rgba(255,252,245,0.7);box-shadow: 0 2px 16px rgba(160,120,32,0.08);}
+.hero-badge::before{content:'✦';font-style:normal;font-size:.7rem;animation:blink 2.5s ease-in-out infinite;}
+.hero h1{font-family:var(--font-serif);font-size:clamp(3rem,7.5vw,7rem);font-weight:400;line-height:1.03;color:var(--forest);letter-spacing:-.01em;animation:slideUp 1.1s var(--ease) .5s both;}
+.hero h1 em{color:var(--gold2);font-style:italic;display:block;}
+.hero-sub{font-size:1.1rem;color:rgba(42,31,14,0.5);max-width:580px;margin:2rem auto;line-height:1.9;font-weight:300;animation:slideUp 1s var(--ease) .8s both;}
+.hero-ctas{display:flex;align-items:center;justify-content:center;gap:1.2rem;flex-wrap:wrap;animation:slideUp 1s var(--ease) 1s both;}
+.leaf{position:absolute;pointer-events:none;z-index:1;opacity:0.18;font-size:1.4rem;animation:float 6s ease-in-out infinite;}
+.leaf:nth-child(1){top:15%;left:8%;animation-delay:0s;}
+.leaf:nth-child(2){top:70%;left:5%;animation-delay:2s;}
+.leaf:nth-child(3){top:25%;right:8%;animation-delay:1s;}
+.leaf:nth-child(4){top:75%;right:7%;animation-delay:3s;}
+.leaf:nth-child(5){top:45%;left:3%;animation-delay:1.5s;}
+.scroll-hint{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.5rem;z-index:2;animation:fadeIn 1s ease 2.2s both;}
+.scroll-hint span{font-family:var(--font-italic);font-style:italic;font-size:.8rem;color:rgba(42,31,14,0.35);}
+.scroll-line{width:1px;height:52px;background:linear-gradient(180deg,rgba(160,120,32,.7),transparent);animation:scrollLine 2.5s ease-in-out infinite;}
+@keyframes scrollLine{0%{transform:scaleY(0);transform-origin:top;}50%{transform:scaleY(1);transform-origin:top;}51%{transform:scaleY(1);transform-origin:bottom;}100%{transform:scaleY(0);transform-origin:bottom;}}
+
+/* Stats */
+.stats-strip{background:rgba(255,252,245,0.6);border-top:1px solid rgba(160,120,32,0.12);border-bottom:1px solid rgba(160,120,32,0.12);}
+.stats-inner{max-width:1200px;margin:0 auto;padding:3.5rem 4rem;display:grid;grid-template-columns:repeat(2,1fr);text-align:center;gap:2rem;}
+.stat-n{font-family:var(--font-serif);font-size:3.2rem;font-weight:400;color:var(--gold2);line-height:1;letter-spacing:-.02em;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.stat-l{font-family:var(--font-italic);font-style:italic;font-size:.8rem;color:rgba(42,31,14,0.38);margin-top:.5rem;}
+
+/* ══ ANIMATED REPLACEMENTS ══ */
+
+/* Room Scene — hero intro visual */
+.room-scene{position:relative;height:540px;border-radius:20px;overflow:hidden;}
+.room-scene canvas{width:100%;height:100%;border-radius:20px;}
+.room-accent{position:absolute;bottom:0;right:0;width:58%;height:55%;border-radius:12px;overflow:hidden;border:3px solid rgba(245,240,234,0.9);box-shadow:0 4px 20px rgba(42,31,14,0.1);}
+.room-accent canvas{width:100%;height:100%;}
+.ftag{position:absolute;background:rgba(255,252,245,0.92);border:1px solid rgba(160,120,32,0.2);border-radius:10px;padding:.8rem 1.3rem;backdrop-filter:blur(16px);z-index:5;box-shadow: 0 4px 20px rgba(42,31,14,0.08);}
+.ftag.t1{top:14%;left:-10%;animation:float 5s ease-in-out infinite;}
+.ftag.t2{bottom:18%;right:-6%;animation:float 5s ease-in-out infinite 2.5s;}
+.ftag span{display:block;font-family:var(--font-italic);font-style:italic;font-size:.75rem;color:var(--gold2);margin-bottom:.2rem;}
+.ftag strong{font-family:var(--font-serif);font-size:1.25rem;font-weight:400;color:var(--forest);}
+
+/* Intro layout */
+.intro-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;}
+
+/* Gallery tiles as animated scenes */
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:280px 280px;gap:1rem;margin-top:3rem;}
+.gtile{border-radius:16px;overflow:hidden;position:relative;cursor:default;box-shadow:0 4px 24px rgba(42,31,14,0.09);}
+.gtile canvas{width:100%;height:100%;display:block;transition:transform .7s var(--ease);}
+.gtile:hover canvas{transform:scale(1.04);}
+.g-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(42,25,10,.65) 0%,transparent 55%);pointer-events:none;}
+.g-name{position:absolute;bottom:1.3rem;left:1.5rem;font-family:var(--font-serif);font-size:1.15rem;font-weight:400;color:#fff;}
+.g-name em{color:rgba(255,230,160,0.9);font-style:italic;display:block;font-family:var(--font-italic);font-size:.75rem;margin-bottom:.1rem;}
+.gtile.tall{grid-row:span 2;}
+
+/* Features */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem;}
+.feat-card{padding:2.5rem;}
+.feat-icon{font-size:1.6rem;margin-bottom:1.2rem;display:block;}
+.feat-card h3{font-family:var(--font-serif);font-size:1.3rem;font-weight:400;color:var(--forest);margin-bottom:.7rem;}
+.feat-card p{font-size:.86rem;color:rgba(42,31,14,0.52);line-height:1.85;}
+
+/* CTA */
+.cta-sec{background:rgba(144,180,120,0.07);border-top:1px solid rgba(160,120,32,0.1);}
+.cta-in{max-width:1200px;margin:0 auto;padding:8rem 4rem;display:grid;grid-template-columns:1.2fr 1fr;gap:6rem;align-items:center;}
+.cta-text h2{font-family:var(--font-serif);font-size:clamp(2.2rem,3.5vw,3.5rem);font-weight:400;color:var(--forest);line-height:1.2;margin-bottom:1.2rem;}
+.cta-text h2 em{color:var(--gold2);font-style:italic;}
+.cta-text p{font-size:.95rem;color:rgba(42,31,14,0.52);line-height:1.9;margin-bottom:2rem;}
+.cta-step{display:flex;align-items:center;gap:1.2rem;padding:1.2rem 1.5rem;background:rgba(255,252,245,0.6);border:1px solid rgba(160,120,32,0.12);border-radius:12px;transition:all .35s;margin-bottom:1rem;box-shadow:0 1px 8px rgba(42,31,14,0.04);}
+.cta-step:hover{border-color:rgba(160,120,32,.32);background:rgba(255,252,245,.85);}
+.step-num{font-family:var(--font-serif);font-size:1.5rem;font-weight:400;color:var(--gold2);min-width:2.5rem;}
+.step-info span{display:block;font-family:var(--font-italic);font-style:italic;font-size:.8rem;color:var(--gold2);margin-bottom:.2rem;}
+.step-info p{font-size:.85rem;color:rgba(42,31,14,0.5);line-height:1.5;}
+
+/* ══ ABOUT ══ */
+.about-trio{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:240px 200px;gap:1rem;margin:3rem 0;}
+.about-trio .mi{grid-row:span 2;border-radius:16px;overflow:hidden;box-shadow:0 6px 30px rgba(42,31,14,0.1);}
+.about-trio .si{border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(42,31,14,0.08);}
+.about-trio canvas{width:100%;height:100%;display:block;}
+.mani-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:6rem;align-items:start;}
+.mani-left{position:sticky;top:120px;}
+.mani-right p{font-family:var(--font-italic);font-size:1.25rem;font-weight:300;line-height:1.8;color:rgba(42,31,14,.65);margin-bottom:2rem;}
+.mani-right p strong{color:var(--forest);font-weight:400;font-style:normal;font-family:var(--font-body);}
+.mani-right p em{color:var(--gold2);}
+.pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem;}
+.pillar{padding:2.2rem;border-top:1px solid rgba(160,120,32,0.2);position:relative;}
+.pillar::before{content:'';position:absolute;top:-1px;left:0;width:0;height:1px;background:linear-gradient(90deg,var(--gold),var(--sage));transition:width .6s var(--ease);}
+.pillar:hover::before{width:100%;}
+.p-num{font-family:var(--font-serif);font-size:2.5rem;font-weight:400;color:rgba(160,120,32,.12);line-height:1;margin-bottom:1rem;}
+.pillar h3{font-family:var(--font-serif);font-size:1.2rem;font-weight:400;color:var(--forest);margin-bottom:.7rem;}
+.pillar p{font-size:.85rem;color:rgba(42,31,14,.5);line-height:1.8;}
+.tl{position:relative;padding-left:3rem;margin-top:4rem;}
+.tl::before{content:'';position:absolute;left:0;top:0;bottom:0;width:1px;background:linear-gradient(180deg,var(--gold),rgba(160,120,32,.1));}
+.tl-item{position:relative;margin-bottom:3.5rem;}
+.tl-item::before{content:'';position:absolute;left:-3.35rem;top:.4rem;width:9px;height:9px;border-radius:50%;border:1px solid var(--gold2);background:rgba(245,240,234,0.9);transition:background .3s;}
+.tl-item:hover::before{background:var(--gold2);}
+.tl-date{font-family:var(--font-italic);font-style:italic;font-size:.85rem;color:var(--gold2);margin-bottom:.5rem;}
+.tl-item h3{font-family:var(--font-serif);font-size:1.15rem;font-weight:400;color:var(--forest);margin-bottom:.4rem;}
+.tl-item p{font-size:.85rem;color:rgba(42,31,14,.5);line-height:1.75;max-width:500px;}
+.miss-bar{background:rgba(144,180,120,0.08);border-top:1px solid rgba(160,120,32,0.1);border-bottom:1px solid rgba(160,120,32,0.1);}
+.miss-in{max-width:1200px;margin:0 auto;padding:5rem 4rem;display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:center;}
+.miss-text h2{font-family:var(--font-serif);font-size:clamp(2rem,3vw,2.8rem);color:var(--forest);font-weight:400;line-height:1.25;margin-bottom:1.2rem;}
+.miss-text h2 em{color:var(--gold2);font-style:italic;}
+.miss-text p{font-size:.95rem;color:rgba(42,31,14,.55);line-height:1.9;margin-bottom:2rem;}
+.vals{list-style:none;display:flex;flex-direction:column;gap:.8rem;}
+.vals li{display:flex;align-items:center;gap:1rem;font-size:.88rem;color:rgba(42,31,14,.65);}
+.vals li::before{content:'✦';color:var(--gold2);font-size:.65rem;}
+.miss-q{border-left:2px solid var(--gold2);padding-left:2rem;}
+.miss-q blockquote{font-family:var(--font-serif);font-size:clamp(1.5rem,2.5vw,2.2rem);font-weight:400;color:var(--forest);line-height:1.45;font-style:italic;}
+.miss-q cite{display:block;margin-top:1.5rem;font-family:var(--font-italic);font-style:italic;font-size:.85rem;color:var(--gold2);}
+
+/* ══ HOW IT WORKS ══ */
+.hiw-imgs{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:4rem 0;height:220px;}
+.hiw-imgs .ic{border-radius:16px;overflow:hidden;position:relative;height:100%;box-shadow:0 4px 20px rgba(42,31,14,0.1);}
+.hiw-imgs canvas{width:100%;height:100%;display:block;}
+.ic-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(42,25,10,.6),transparent);pointer-events:none;}
+.ic-l{position:absolute;bottom:1rem;left:1.2rem;font-family:var(--font-italic);font-style:italic;font-size:.8rem;color:rgba(255,248,230,.7);}
+.steps{display:flex;flex-direction:column;gap:0;margin-top:4rem;position:relative;}
+.steps::before{content:'';position:absolute;left:2.5rem;top:0;bottom:0;width:1px;background:linear-gradient(180deg,var(--gold),rgba(160,120,32,.05));z-index:0;}
+.srow{display:grid;grid-template-columns:6rem 1fr;gap:2rem;padding:3rem 0;border-bottom:1px solid rgba(42,31,14,.06);position:relative;z-index:1;align-items:start;}
+.srow:last-child{border-bottom:none;}
+.s-idx{text-align:center;padding-top:.3rem;}
+.s-dot{width:22px;height:22px;border:1px solid rgba(160,120,32,.4);border-radius:50%;background:rgba(245,240,234,0.9);margin:0 auto .5rem;display:flex;align-items:center;justify-content:center;transition:all .4s;}
+.s-dot::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--gold2);opacity:0;transition:opacity .4s;}
+.srow:hover .s-dot{background:var(--gold2);box-shadow:0 0 24px rgba(160,120,32,.3);}
+.srow:hover .s-dot::before{opacity:1;}
+.s-nl{font-family:var(--font-italic);font-style:italic;font-size:.7rem;color:rgba(160,120,32,.4);}
+.sc{padding-right:4rem;}
+.sc-tag{font-family:var(--font-italic);font-style:italic;font-size:.8rem;color:var(--gold2);margin-bottom:.6rem;display:block;}
+.sc h3{font-family:var(--font-serif);font-size:1.9rem;font-weight:400;color:var(--forest);margin-bottom:.8rem;line-height:1.15;}
+.sc h3 em{color:var(--gold2);font-style:italic;}
+.sc p{font-size:.92rem;color:rgba(42,31,14,.55);line-height:1.85;max-width:580px;margin-bottom:1.2rem;}
+.chips{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:1rem;}
+.chip{font-family:var(--font-italic);font-style:italic;font-size:.75rem;color:rgba(42,31,14,.4);border:1px solid rgba(42,31,14,.1);padding:.3rem .85rem;border-radius:20px;}
+.form-mock{background:rgba(255,252,245,0.75);border:1px solid rgba(160,120,32,0.18);border-radius:16px;padding:2.5rem;backdrop-filter:blur(12px);box-shadow:0 4px 24px rgba(42,31,14,0.08);}
+.mock-h{display:flex;align-items:center;gap:.5rem;margin-bottom:2rem;padding-bottom:1.2rem;border-bottom:1px solid rgba(42,31,14,.06);}
+.dot-r{width:9px;height:9px;border-radius:50%;background:#C0635C;}
+.dot-y{width:9px;height:9px;border-radius:50%;background:var(--gold2);}
+.dot-g{width:9px;height:9px;border-radius:50%;background:#6CAB7A;}
+.mock-title{font-family:var(--font-italic);font-style:italic;font-size:.7rem;color:rgba(42,31,14,.25);margin-left:auto;}
+.mf{margin-bottom:1.2rem;}
+.ml{display:block;font-family:var(--font-italic);font-style:italic;font-size:.72rem;color:var(--gold2);margin-bottom:.5rem;}
+.mi-f{width:100%;background:rgba(245,240,234,.5);border:1px solid rgba(42,31,14,.1);border-radius:8px;padding:.7rem 1rem;font-family:var(--font-body);font-size:.84rem;color:rgba(42,31,14,.65);}
+.ms{display:flex;gap:.5rem;flex-wrap:wrap;}
+.mo{font-family:var(--font-italic);font-style:italic;font-size:.72rem;padding:.35rem .85rem;border:1px solid rgba(42,31,14,.1);border-radius:20px;color:rgba(42,31,14,.4);}
+.mo.sel{border-color:var(--gold2);color:var(--gold2);background:rgba(160,120,32,.06);}
+.msub{width:100%;margin-top:1.5rem;background:linear-gradient(135deg,var(--gold2),var(--gold));border:none;border-radius:30px;padding:.9rem;font-family:var(--font-body);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;font-weight:600;cursor:default;}
+.ai-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem;}
+.ai-card{padding:2rem;text-align:center;border:1px solid rgba(160,120,32,.14);border-radius:12px;transition:all .4s;background:rgba(255,252,245,0.5);}
+.ai-card:hover{border-color:rgba(160,120,32,.32);transform:translateY(-4px);box-shadow:0 12px 40px rgba(42,31,14,0.08);}
+.ai-icon{font-size:2rem;margin-bottom:1.2rem;display:block;}
+.ai-card h4{font-family:var(--font-serif);font-size:1.1rem;font-weight:400;color:var(--forest);margin-bottom:.6rem;}
+.ai-card p{font-size:.82rem;color:rgba(42,31,14,.5);line-height:1.75;}
+
+/* ══ INTELLIGENCE ══ */
+.neural-sec{position:relative;overflow:hidden;background:rgba(144,180,120,0.06);}
+canvas#n-canvas{position:absolute;inset:0;pointer-events:none;z-index:0;opacity:.35;}
+.n-in{position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:6rem 4rem;display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:center;}
+.n-text h2{font-family:var(--font-serif);font-size:clamp(2rem,3.5vw,3rem);font-weight:400;color:var(--forest);line-height:1.2;margin-bottom:1.2rem;}
+.n-text h2 em{color:var(--gold2);font-style:italic;}
+.n-text p{font-size:.92rem;color:rgba(42,31,14,.55);line-height:1.85;margin-bottom:1rem;}
+.metrics{display:flex;flex-direction:column;gap:1.2rem;}
+.mrow{display:flex;align-items:center;gap:1rem;}
+.mlabel{font-family:var(--font-italic);font-style:italic;font-size:.75rem;color:rgba(42,31,14,.5);min-width:160px;}
+.mbar{flex:1;height:3px;background:rgba(42,31,14,.08);border-radius:2px;overflow:hidden;position:relative;}
+.mfill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--gold),var(--sage));border-radius:2px;width:0;transition:width 1.5s var(--ease);}
+.mfill.anim{width:var(--pct);}
+.mpct{font-family:var(--font-serif);font-size:.85rem;font-weight:400;color:var(--gold2);min-width:2.5rem;text-align:right;}
+.cap-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin-top:3rem;}
+.cap-card{padding:2.5rem;position:relative;overflow:hidden;}
+.cap-num{font-family:var(--font-serif);font-size:3rem;font-weight:400;color:rgba(160,120,32,.1);line-height:1;position:absolute;top:1.5rem;right:2rem;}
+.cap-icon{font-size:1.4rem;margin-bottom:1rem;display:block;}
+.cap-card h3{font-family:var(--font-serif);font-size:1.25rem;font-weight:400;color:var(--forest);margin-bottom:.7rem;}
+.cap-card p{font-size:.86rem;color:rgba(42,31,14,.5);line-height:1.8;}
+.layers{margin-top:3rem;display:flex;flex-direction:column;gap:0;}
+.layer{display:grid;grid-template-columns:3.5rem 1fr auto;gap:1.5rem;align-items:center;padding:1.8rem 0;border-bottom:1px solid rgba(42,31,14,.05);transition:all .3s;}
+.layer:hover{padding-left:.5rem;}
+.l-n{font-family:var(--font-serif);font-size:.8rem;color:rgba(160,120,32,.35);}
+.l-info h4{font-family:var(--font-serif);font-size:1.05rem;font-weight:400;color:var(--forest);margin-bottom:.3rem;}
+.l-info p{font-size:.82rem;color:rgba(42,31,14,.45);line-height:1.6;}
+.l-badge{font-family:var(--font-italic);font-style:italic;font-size:.75rem;color:var(--gold2);border:1px solid rgba(160,120,32,.25);padding:.3rem .8rem;border-radius:20px;white-space:nowrap;}
+.nodes{position:relative;height:400px;display:flex;align-items:center;justify-content:center;}
+.node{position:absolute;border-radius:50%;border:1px solid rgba(160,120,32,.3);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);animation:float 4s ease-in-out infinite;background:rgba(255,252,245,0.6);}
+.n-lbl{font-family:var(--font-italic);font-style:italic;font-size:.62rem;color:var(--gold2);text-align:center;padding:0 4px;}
+.node.central{width:110px;height:110px;background:rgba(160,120,32,.08);border-color:rgba(160,120,32,.5);box-shadow:0 0 50px rgba(160,120,32,.12);top:50%;left:50%;transform:translate(-50%,-50%);animation:glow 5s ease-in-out infinite;}
+.node.n1{width:72px;height:72px;top:10%;left:15%;animation-delay:0s;}
+.node.n2{width:58px;height:58px;top:15%;right:18%;animation-delay:.8s;}
+.node.n3{width:68px;height:68px;bottom:12%;left:20%;animation-delay:1.6s;}
+.node.n4{width:62px;height:62px;bottom:18%;right:14%;animation-delay:2.4s;}
+.node.n5{width:50px;height:50px;top:42%;left:5%;animation-delay:1.2s;}
+.node.n6{width:54px;height:54px;top:42%;right:6%;animation-delay:2s;}
+
+/* ══ FEATURES ══ */
+.fh-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem;}
+.fh-card{padding:3rem 2rem;text-align:center;}
+.fh-icon{font-size:2.2rem;margin-bottom:1.5rem;display:block;}
+.fh-card h3{font-family:var(--font-serif);font-size:1.4rem;font-weight:400;color:var(--forest);margin-bottom:.8rem;}
+.fh-card p{font-size:.86rem;color:rgba(42,31,14,.5);line-height:1.8;}
+.frows{margin-top:4rem;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;padding:5rem 0;border-bottom:1px solid rgba(42,31,14,.06);}
+.frow:last-child{border-bottom:none;}
+.frow.rev{direction:rtl;}
+.frow.rev>*{direction:ltr;}
+.fr-text h3{font-family:var(--font-serif);font-size:clamp(1.8rem,2.5vw,2.5rem);font-weight:400;color:var(--forest);line-height:1.2;margin-bottom:1rem;}
+.fr-text h3 em{color:var(--gold2);font-style:italic;}
+.fr-text p{font-size:.92rem;color:rgba(42,31,14,.55);line-height:1.85;margin-bottom:1.5rem;}
+.bens{list-style:none;display:flex;flex-direction:column;gap:.6rem;}
+.bens li{display:flex;align-items:flex-start;gap:.8rem;font-size:.86rem;color:rgba(42,31,14,.6);line-height:1.6;}
+.bens li::before{content:'—';color:var(--gold2);font-size:.8rem;margin-top:.05rem;}
+.fr-vis{height:360px;border-radius:16px;overflow:hidden;box-shadow:0 6px 30px rgba(42,31,14,0.1);}
+.fr-vis canvas{width:100%;height:100%;display:block;}
+.pill{display:inline-block;font-family:var(--font-italic);font-style:italic;font-size:.78rem;color:var(--gold2);border:1px solid rgba(160,120,32,.28);padding:.35rem 1rem;border-radius:20px;margin-bottom:.8rem;background:rgba(160,120,32,.04);}
+.mat-sec{background:rgba(144,180,120,0.06);}
+.mat-table{width:100%;margin-top:3rem;border-collapse:collapse;}
+.mat-table th{font-family:var(--font-italic);font-style:italic;font-size:.8rem;color:var(--gold2);padding:1rem 1.5rem;text-align:left;border-bottom:1px solid rgba(160,120,32,.15);}
+.mat-table td{padding:1.1rem 1.5rem;font-size:.85rem;color:rgba(42,31,14,.55);border-bottom:1px solid rgba(42,31,14,.04);}
+.mat-table td:first-child{color:var(--forest);}
+.mat-table tr:hover td{background:rgba(160,120,32,.02);}
+.ck{color:var(--gold2);}.da{color:rgba(42,31,14,.2);}
+
+/* ══ RESEARCH ══ */
+.res-strip{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:1rem;height:240px;margin:3rem 0;}
+.res-strip .ic{border-radius:16px;overflow:hidden;position:relative;height:100%;box-shadow:0 4px 20px rgba(42,31,14,0.09);}
+.res-strip canvas{width:100%;height:100%;display:block;}
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:3rem;}
+.pc{padding:2.5rem;}
+.p-type{font-family:var(--font-italic);font-style:italic;font-size:.8rem;color:var(--gold2);margin-bottom:.8rem;display:flex;align-items:center;gap:.5rem;}
+.p-type::before{content:'';width:16px;height:1px;background:var(--gold2);}
+.pc h3{font-family:var(--font-serif);font-size:1.15rem;font-weight:400;color:var(--forest);margin-bottom:.6rem;line-height:1.4;}
+.pc p{font-size:.84rem;color:rgba(42,31,14,.5);line-height:1.8;margin-bottom:1.2rem;}
+.pm{display:flex;gap:1rem;align-items:center;}
+.pm span{font-family:var(--font-italic);font-style:italic;font-size:.72rem;color:rgba(42,31,14,.3);}
+.dg{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-top:3rem;}
+.dc{padding:2rem 1.8rem;border:1px solid rgba(42,31,14,.06);border-radius:12px;transition:all .35s;background:rgba(255,252,245,0.4);}
+.dc:hover{border-color:rgba(160,120,32,.25);background:rgba(255,252,245,.7);}
+.d-icon{font-size:1.2rem;color:var(--sage);margin-bottom:1rem;display:block;}
+.dc h4{font-family:var(--font-serif);font-size:1rem;font-weight:400;color:var(--forest);margin-bottom:.5rem;}
+.dc p{font-size:.8rem;color:rgba(42,31,14,.45);line-height:1.7;}
+.find-sec{background:rgba(144,180,120,0.08);}
+.find-grid{display:grid;grid-template-columns:1fr 1.5fr;gap:6rem;align-items:start;}
+.find-list{margin-top:2.5rem;display:flex;flex-direction:column;gap:1rem;}
+.fi{padding:1.5rem;border-left:2px solid rgba(160,120,32,.2);transition:all .3s;}
+.fi:hover{border-left-color:var(--gold2);padding-left:1.8rem;}
+.fi h4{font-family:var(--font-serif);font-size:1rem;font-weight:400;color:var(--forest);margin-bottom:.4rem;}
+.fi p{font-size:.82rem;color:rgba(42,31,14,.5);line-height:1.7;}
+.k-stat{text-align:center;padding:2.5rem;border:1px solid rgba(160,120,32,.15);border-radius:16px;margin-bottom:1.5rem;background:rgba(255,252,245,0.6);}
+.big-n{font-family:var(--font-serif);font-size:3.8rem;font-weight:400;color:var(--gold2);line-height:1;display:block;margin-bottom:.5rem;}
+.k-stat p{font-size:.82rem;color:rgba(42,31,14,.5);line-height:1.6;}
+.sp{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.ms2{padding:1.5rem;border:1px solid rgba(160,120,32,.15);border-radius:12px;text-align:center;background:rgba(255,252,245,0.5);}
+.ms2 .num{font-family:var(--font-serif);font-size:2rem;font-weight:400;color:var(--gold2);display:block;}
+.ms2 p{font-size:.72rem;color:rgba(42,31,14,.4);}
+.meth{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:3rem;}
+.ms3{padding:1.8rem 1.5rem;border-top:2px solid rgba(160,120,32,.2);transition:border-color .35s;}
+.ms3:hover{border-top-color:var(--gold2);}
+.ms3 .n{font-family:var(--font-serif);font-size:2rem;font-weight:400;color:rgba(160,120,32,.2);line-height:1;margin-bottom:.8rem;}
+.ms3 h4{font-family:var(--font-serif);font-size:.95rem;font-weight:400;color:var(--forest);margin-bottom:.5rem;}
+.ms3 p{font-size:.8rem;color:rgba(42,31,14,.45);line-height:1.65;}
+
+/* Footer */
+footer{background:rgba(235,228,215,0.7);border-top:1px solid rgba(160,120,32,.12);padding:5rem 4rem 3rem;}
+.foot-in{max-width:1200px;margin:0 auto 3rem;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:4rem;}
+.foot-brand p{font-size:.84rem;color:rgba(42,31,14,.38);line-height:1.8;margin-top:1rem;max-width:240px;}
+.fc h4{font-family:var(--font-italic);font-style:italic;font-size:.82rem;color:var(--gold2);margin-bottom:1.2rem;}
+.fc ul{list-style:none;display:flex;flex-direction:column;gap:.6rem;}
+.fc ul li a{font-size:.84rem;color:rgba(42,31,14,.4);text-decoration:none;transition:color .2s;cursor:pointer;}
+.fc ul li a:hover{color:var(--forest);}
+.foot-btm{max-width:1200px;margin:0 auto;padding-top:2rem;border-top:1px solid rgba(42,31,14,.07);display:flex;justify-content:space-between;align-items:center;}
+.foot-btm p{font-family:var(--font-italic);font-style:italic;font-size:.75rem;color:rgba(42,31,14,.25);}
+
+@media(max-width:1024px){
+  nav{padding:1.2rem 2rem;}
+  .nav-links{display:none;}
+  .hamburger{display:flex;}
+  .nav-cta{display:none;}
+  .inner{padding:0 2rem;}
+  .intro-grid,.cta-in,.mani-grid,.miss-in,.n-in,.find-grid{grid-template-columns:1fr;gap:3rem;}
+  .feat-grid,.cap-grid,.pillars,.fh-grid,.rg{grid-template-columns:1fr 1fr;}
+  .stats-inner{grid-template-columns:repeat(2,1fr);}
+  .frow{grid-template-columns:1fr;gap:2.5rem;direction:ltr!important;}
+  .mani-left{position:static;}
+  .ai-grid{grid-template-columns:repeat(2,1fr);}
+  .meth{grid-template-columns:repeat(2,1fr);}
+  .dg{grid-template-columns:repeat(2,1fr);}
+  .foot-in{grid-template-columns:1fr 1fr;gap:2.5rem;}
+  .gallery{grid-template-columns:1fr 1fr;}
+  .gtile.tall{grid-row:span 1;height:220px;}
+  .hiw-imgs,.res-strip{grid-template-columns:1fr 1fr;height:auto;}
+  .hiw-imgs .ic{height:180px;}
+  .res-strip .ic{height:180px;}
+}
+@media(max-width:640px){
+  .feat-grid,.cap-grid,.pillars,.fh-grid,.rg,.dg{grid-template-columns:1fr;}
+  .ai-grid,.meth,.sp{grid-template-columns:1fr;}
+  .gallery{grid-template-columns:1fr;}
+  .foot-in{grid-template-columns:1fr;gap:2rem;}
+  .foot-btm{flex-direction:column;gap:.5rem;text-align:center;}
+  .hiw-imgs,.res-strip{grid-template-columns:1fr;}
+  section{padding:4rem 0;}
+  .ph{padding:8rem 2rem 4rem;}
+}
+</style>
+</head>
+<body>
+<div id="cur"></div>
+<div id="cur-ring"></div>
+<div id="sp"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<nav id="nav">
+  <a class="logo" onclick="go('home')">Haven<span>Craft</span></a>
+  <ul class="nav-links">
+    <li><a onclick="go('home')">Home</a></li>
+    <li><a onclick="go('about')">About</a></li>
+    <li><a onclick="go('how')">How It Works</a></li>
+    <li><a onclick="go('intel')">Intelligence</a></li>
+    <li><a onclick="go('feat')">Features</a></li>
+    <li><a onclick="go('res')">Research</a></li>
+  </ul>
+  <a href="#" class="nav-cta">Launch AI ✦</a>
+  <button class="hamburger" onclick="toggleMob()"><span></span><span></span><span></span></button>
+</nav>
+<div class="mob-nav" id="mNav">
+  <a onclick="go('home');toggleMob()">Home</a>
+  <a onclick="go('about');toggleMob()">About</a>
+  <a onclick="go('how');toggleMob()">How It Works</a>
+  <a onclick="go('intel');toggleMob()">Intelligence</a>
+  <a onclick="go('feat');toggleMob()">Features</a>
+  <a onclick="go('res');toggleMob()">Research</a>
+</div>
+
+<!-- ══════════════ HOME ══════════════ -->
+<div id="page-home" class="page active">
+<section class="hero">
+  <canvas id="bg-canvas"></canvas>
+  <div class="hero-halo"></div>
+  <div class="hero-ring"></div>
+  <div class="hero-ring hero-ring2"></div>
+  <span class="leaf">🌿</span><span class="leaf">✦</span><span class="leaf">🍃</span><span class="leaf">◈</span><span class="leaf">🌿</span>
+  <div class="hero-content">
+    <div class="hero-badge">AI Interior Design Platform</div>
+    <h1>Where Imagination<br>Meets <em>Intelligent Space</em></h1>
+    <p class="hero-sub">HavenCraft transforms your vision into exquisite, AI-crafted interior concepts — where computational intuition meets the poetry of spatial design.</p>
+    <div class="hero-ctas">
+      <a href="#" class="btn-p">Launch HavenCraft AI</a>
+      <button class="btn-g" onclick="go('feat')">Explore Features</button>
+      <button class="btn-g" onclick="go('res')">Research</button>
+    </div>
+  </div>
+  <div class="scroll-hint"><span>Discover</span><div class="scroll-line"></div></div>
+</section>
+
+<div class="stats-strip">
+  <div class="stats-inner">
+    <div class="reveal"><div class="stat-n"><span class="cu" data-t="50" data-s="ms">0</span></div><div class="stat-l">Generation Speed</div></div>
+    <div class="reveal d1"><div class="stat-n"><span class="cu" data-t="12">0</span></div><div class="stat-l">Design Styles</div></div>
+  </div>
+</div>
+
+<section>
+  <div class="inner">
+    <div class="intro-grid">
+      <div class="reveal">
+        <div class="sec-label">What We Do</div>
+        <h2 class="sec-title">Intelligence sculpted<br>into <em>living spaces</em></h2>
+        <p class="sec-body" style="margin:1.5rem 0 2.5rem;">HavenCraft is an AI-powered interior design platform that transforms the way humans conceive, plan, and realize their living environments. By fusing machine intelligence with the nuanced language of aesthetics, we deliver personalized spatial transformations.</p>
+        <button class="btn-g" onclick="go('about')">Our Story</button>
+      </div>
+      <div class="reveal d2">
+        <div class="room-scene" style="position:relative;height:540px;">
+          <canvas id="c-room-main" style="position:absolute;inset:0;width:100%;height:100%;border-radius:20px;"></canvas>
+          <div class="room-accent">
+            <canvas id="c-room-acc" style="width:100%;height:100%;"></canvas>
+          </div>
+          <div class="ftag t1"><span>AI Confidence</span><strong>97.4%</strong></div>
+          <div class="ftag t2"><span>Style Match</span><strong>Modern</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section>
+  <div class="inner">
+    <div class="reveal"><div class="sec-label">Design Styles</div><h2 class="sec-title">Every aesthetic,<br><em>mastered</em></h2></div>
+    <div class="gallery">
+      <div class="gtile tall reveal"><canvas id="c-g1"></canvas><div class="g-ov"></div><div class="g-name"><em>Style 01</em>Japandi</div></div>
+      <div class="gtile reveal d1"><canvas id="c-g2"></canvas><div class="g-ov"></div><div class="g-name"><em>Style 02</em>Scandinavian</div></div>
+      <div class="gtile reveal d2"><canvas id="c-g3"></canvas><div class="g-ov"></div><div class="g-name"><em>Style 03</em>Contemporary</div></div>
+      <div class="gtile reveal d1"><canvas id="c-g4"></canvas><div class="g-ov"></div><div class="g-name"><em>Style 04</em>Art Deco</div></div>
+      <div class="gtile reveal d2"><canvas id="c-g5"></canvas><div class="g-ov"></div><div class="g-name"><em>Style 05</em>Bohemian</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section style="background:rgba(144,185,120,0.07);">
+  <div class="inner">
+    <div class="reveal"><div class="sec-label">Core Capabilities</div><h2 class="sec-title">Every dimension,<br><em>considered</em></h2></div>
+    <div class="feat-grid">
+      <div class="card feat-card reveal d1"><span class="feat-icon">✦</span><h3>Personalized Designs</h3><p>AI learns your aesthetic language and translates it into spatial configurations that feel unmistakably yours.</p></div>
+      <div class="card feat-card reveal d2"><span class="feat-icon">◈</span><h3>Budget Intelligence</h3><p>Luxury-feeling outcomes optimized within your financial parameters — every recommendation, budget-aware.</p></div>
+      <div class="card feat-card reveal d3"><span class="feat-icon">⬡</span><h3>Layout Reasoning</h3><p>Spatial cognition that understands flow, proportion, and ergonomics to produce layouts that breathe.</p></div>
+      <div class="card feat-card reveal d1"><span class="feat-icon">◉</span><h3>Style Adaptive AI</h3><p>From mid-century modern to maximalist baroque — adapts across the full spectrum of design.</p></div>
+      <div class="card feat-card reveal d2"><span class="feat-icon">❋</span><h3>Color Harmony</h3><p>Color theory meets machine precision. Every palette curated for visual coherence and emotional resonance.</p></div>
+      <div class="card feat-card reveal d3"><span class="feat-icon">⬢</span><h3>Instant Results</h3><p>From empty room to complete design concept in under a minute. Intelligence at machine speed.</p></div>
+    </div>
+    <div style="text-align:center;margin-top:3rem;" class="reveal"><button class="btn-g" onclick="go('feat')">All Features</button></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="cta-sec">
+  <div class="cta-in">
+    <div class="cta-text reveal">
+      <div class="sec-label">Get Started</div>
+      <h2>Begin your <em>spatial transformation</em></h2>
+      <p>Four inputs. Infinite possibilities. HavenCraft synthesizes your preferences, dimensions, and dreams into interior experiences that exceed imagination — delivered in moments, not months.</p>
+      <a href="#" class="btn-p">Launch HavenCraft AI</a>
+    </div>
+    <div class="reveal d2">
+      <div class="cta-step"><div class="step-num">01</div><div class="step-info"><span>Input</span><p>Enter room dimensions, type, and style preferences</p></div></div>
+      <div class="cta-step"><div class="step-num">02</div><div class="step-info"><span>Analyze</span><p>AI processes spatial data and aesthetic parameters</p></div></div>
+      <div class="cta-step"><div class="step-num">03</div><div class="step-info"><span>Generate</span><p>Intelligent layouts and design concepts are crafted</p></div></div>
+      <div class="cta-step"><div class="step-num">04</div><div class="step-info"><span>Receive</span><p>Your personalized interior design delivered instantly</p></div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-in">
+    <div class="foot-brand"><a class="logo" onclick="go('home')">Haven<span>Craft</span></a><p>An orchestration of intelligence and elegance. Where geometry encounters emotion.</p></div>
+    <div class="fc"><h4>Platform</h4><ul><li><a onclick="go('how')">How It Works</a></li><li><a onclick="go('feat')">Features</a></li><li><a onclick="go('intel')">Intelligence</a></li></ul></div>
+    <div class="fc"><h4>Company</h4><ul><li><a onclick="go('about')">About</a></li><li><a onclick="go('res')">Research</a></li></ul></div>
+    <div class="fc"><h4>Connect</h4><ul><li><a href="#">Press Kit</a></li><li><a href="#">Investor Deck</a></li></ul></div>
+  </div>
+  <div class="foot-btm"><p>© 2025 HavenCraft. All rights reserved.</p><p>Spaces reimagined through computational intuition.</p></div>
+</footer>
+</div>
+
+<!-- ══════════════ ABOUT ══════════════ -->
+<div id="page-about" class="page">
+<header class="ph">
+  <div class="tag">Our Story</div>
+  <h1>Democratizing <em>interior design</em><br>through intelligence</h1>
+  <p>A vision born from the belief that every person deserves a space that reflects their highest self — made possible through AI.</p>
+</header>
+<div class="inner">
+  <div class="about-trio reveal">
+    <div class="mi"><canvas id="c-about-main" style="width:100%;height:100%;display:block;"></canvas></div>
+    <div class="si"><canvas id="c-about-s1" style="width:100%;height:100%;display:block;"></canvas></div>
+    <div class="si"><canvas id="c-about-s2" style="width:100%;height:100%;display:block;"></canvas></div>
+  </div>
+</div>
+<section>
+  <div class="inner">
+    <div class="mani-grid">
+      <div class="mani-left reveal">
+        <div class="sec-label">Manifesto</div>
+        <h2 class="sec-title">We believe in<br><em>intelligent beauty</em></h2>
+        <div style="height:1px;background:linear-gradient(90deg,var(--gold),transparent);margin:2rem 0;width:80px;"></div>
+        <a href="#" class="btn-p" style="margin-top:1rem;">Experience It</a>
+      </div>
+      <div class="mani-right">
+        <p class="reveal"><strong>Interior design has long been a privilege.</strong> Reserved for those with access to expensive professionals, years of accumulated taste, and the vocabulary to articulate spatial vision.</p>
+        <p class="reveal d1">HavenCraft exists to dismantle that barrier. Through <em>intelligence-guided aesthetics</em>, we've created a platform that understands your preferences at a level most designers never reach in weeks of consultation.</p>
+        <p class="reveal d2">We are not replacing the human designer. We are creating a world where <strong>every person has a designer-level conversation partner</strong> — one that works at machine speed, never tires, and learns from millions of spatial configurations.</p>
+        <p class="reveal d3">This is <em>personalized spatial transformation</em>. This is HavenCraft.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="miss-bar">
+  <div class="miss-in">
+    <div class="miss-text reveal">
+      <div class="sec-label">Our Mission</div>
+      <h2>Architecture redefined<br>through <em>AI</em></h2>
+      <p>To make world-class interior intelligence accessible to every home, every budget, every dream.</p>
+      <ul class="vals">
+        <li>Democratizing interior design at scale</li>
+        <li>Intelligence woven into every recommendation</li>
+        <li>Beauty as a universal right, not a luxury</li>
+        <li>Human creativity, amplified by machine precision</li>
+      </ul>
+    </div>
+    <div class="miss-q reveal d2">
+      <blockquote>"Great design is not about what money can buy — it's about what intelligence can create."</blockquote>
+      <cite>— HavenCraft Design Philosophy</cite>
+    </div>
+  </div>
+</div>
+<section>
+  <div class="inner">
+    <div class="reveal"><div class="sec-label">Foundations</div><h2 class="sec-title">Three pillars of<br><em>spatial intelligence</em></h2></div>
+    <div class="pillars">
+      <div class="pillar reveal d1"><div class="p-num">01</div><h3>Aesthetic Intuition</h3><p>Pattern recognition trained on millions of curated spaces, distilling centuries of design wisdom into milliseconds of insight.</p></div>
+      <div class="pillar reveal d2"><div class="p-num">02</div><h3>Spatial Cognition</h3><p>Deep understanding of proportion, flow, and human movement — translating dimensions into lived experiences.</p></div>
+      <div class="pillar reveal d3"><div class="p-num">03</div><h3>Personal Resonance</h3><p>Learning your unique aesthetic language to ensure every design feels unmistakably, intimately yours.</p></div>
+    </div>
+    <div class="tl reveal">
+      <div class="tl-item"><div class="tl-date">2022</div><h3>The Vision</h3><p>Born from frustration with inaccessible design — a platform to democratize spatial intelligence.</p></div>
+      <div class="tl-item"><div class="tl-date">2023</div><h3>First Intelligence</h3><p>Core AI trained on curated interior datasets, achieving designer-level aesthetic judgment.</p></div>
+      <div class="tl-item"><div class="tl-date">2024</div><h3>Public Launch</h3><p>Opening HavenCraft to the world — 12,000 rooms transformed in the first quarter.</p></div>
+      <div class="tl-item"><div class="tl-date">2025</div><h3>Next Chapter</h3><p>Multi-modal understanding, real-time collaboration, and augmented reality visualization.</p></div>
+    </div>
+  </div>
+</section>
+<footer>
+  <div class="foot-in">
+    <div class="foot-brand"><a class="logo" onclick="go('home')">Haven<span>Craft</span></a><p>An orchestration of intelligence and elegance.</p></div>
+    <div class="fc"><h4>Platform</h4><ul><li><a onclick="go('how')">How It Works</a></li><li><a onclick="go('feat')">Features</a></li></ul></div>
+    <div class="fc"><h4>Company</h4><ul><li><a onclick="go('about')">About</a></li><li><a onclick="go('res')">Research</a></li></ul></div>
+    <div class="fc"><h4>Connect</h4><ul><li><a href="#">Press Kit</a></li></ul></div>
+  </div>
+  <div class="foot-btm"><p>© 2025 HavenCraft.</p><p>Spaces reimagined through computational intuition.</p></div>
+</footer>
+</div>
+
+<!-- ══════════════ HOW IT WORKS ══════════════ -->
+<div id="page-how" class="page">
+<header class="ph">
+  <div class="tag">The Process</div>
+  <h1>From <em>vision</em> to<br>realized space</h1>
+  <p>A four-step journey from raw intention to exquisitely detailed interior concept — powered by AI at every stage.</p>
+</header>
+<div class="inner">
+  <div class="hiw-imgs">
+    <div class="ic"><canvas id="c-hiw1" style="width:100%;height:100%;display:block;"></canvas><div class="ic-ov"></div><div class="ic-l">Input & Vision</div></div>
+    <div class="ic"><canvas id="c-hiw2" style="width:100%;height:100%;display:block;"></canvas><div class="ic-ov"></div><div class="ic-l">AI Analysis</div></div>
+    <div class="ic"><canvas id="c-hiw3" style="width:100%;height:100%;display:block;"></canvas><div class="ic-ov"></div><div class="ic-l">Design Output</div></div>
+  </div>
+  <div class="steps">
+    <div class="srow reveal">
+      <div class="s-idx"><div class="s-dot"></div><div class="s-nl">Step</div></div>
+      <div class="sc">
+        <span class="sc-tag">Step One</span>
+        <h3>Describe your <em>space</em></h3>
+        <p>Input room dimensions, type, and your aesthetic aspirations. Our natural language interface understands nuance — "warm and contemplative" translates directly into design parameters.</p>
+        <div class="chips"><span class="chip">Room Type</span><span class="chip">Dimensions</span><span class="chip">Style Preference</span><span class="chip">Budget</span></div>
+      </div>
+    </div>
+    <div class="srow reveal d1">
+      <div class="s-idx"><div class="s-dot"></div><div class="s-nl">Step</div></div>
+      <div class="sc">
+        <span class="sc-tag">Step Two</span>
+        <h3>Intelligence <em>analyzes</em></h3>
+        <p>The AI processes spatial parameters against a vast knowledge base of curated interiors, material relationships, and color theory principles.</p>
+      </div>
+    </div>
+    <div class="srow reveal d2">
+      <div class="s-idx"><div class="s-dot"></div><div class="s-nl">Step</div></div>
+      <div class="sc">
+        <span class="sc-tag">Step Three</span>
+        <h3>Concepts <em>materialize</em></h3>
+        <p>Detailed design recommendations emerge — furniture arrangements, color palettes, material specifications, and lighting strategies.</p>
+      </div>
+    </div>
+    <div class="srow reveal d3">
+      <div class="s-idx"><div class="s-dot"></div><div class="s-nl">Step</div></div>
+      <div class="sc">
+        <span class="sc-tag">Step Four</span>
+        <h3>Your space, <em>realized</em></h3>
+        <p>Receive a complete design document — ready to implement, shop, or share with contractors and interior professionals.</p>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:5rem;">
+    <div class="reveal"><div class="sec-label">AI Capabilities</div><h2 class="sec-title">What the intelligence <em>sees</em></h2></div>
+    <div class="ai-grid">
+      <div class="ai-card reveal d1"><span class="ai-icon">◎</span><h4>Spatial Parsing</h4><p>Interprets room geometry to optimize flow, proportion, and human-scale ergonomics.</p></div>
+      <div class="ai-card reveal d2"><span class="ai-icon">◈</span><h4>Style Synthesis</h4><p>Cross-references aesthetic preferences against curated design vocabularies.</p></div>
+      <div class="ai-card reveal d3"><span class="ai-icon">❋</span><h4>Material Logic</h4><p>Understands tactile, visual, and acoustic properties of materials in combination.</p></div>
+    </div>
+  </div>
+  <div style="margin-top:5rem;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;" class="reveal">
+    <div>
+      <div class="sec-label">Try It Now</div>
+      <h2 class="sec-title" style="font-size:2rem;">Your first design,<br><em>in 60 seconds</em></h2>
+      <p class="sec-body" style="margin-top:1rem;">Enter your space details and watch AI craft a personalized interior in real time.</p>
+    </div>
+    <div class="form-mock">
+      <div class="mock-h"><div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div><span class="mock-title">HavenCraft AI Interface</span></div>
+      <div class="mf"><label class="ml">Room Type</label><input class="mi-f" value="Living Room" readonly/></div>
+      <div class="mf"><label class="ml">Dimensions</label><input class="mi-f" value="4.5m × 6m" readonly/></div>
+      <div class="mf"><label class="ml">Style Preference</label><div class="ms"><span class="mo sel">Japandi</span><span class="mo">Modern</span><span class="mo">Boho</span><span class="mo">Deco</span></div></div>
+      <button class="msub">Generate Design ✦</button>
+    </div>
+  </div>
+</div>
+<footer>
+  <div class="foot-in">
+    <div class="foot-brand"><a class="logo" onclick="go('home')">Haven<span>Craft</span></a><p>Intelligence sculpted into living spaces.</p></div>
+    <div class="fc"><h4>Platform</h4><ul><li><a onclick="go('feat')">Features</a></li><li><a onclick="go('intel')">Intelligence</a></li></ul></div>
+    <div class="fc"><h4>Company</h4><ul><li><a onclick="go('about')">About</a></li><li><a onclick="go('res')">Research</a></li></ul></div>
+    <div class="fc"><h4>Connect</h4><ul><li><a href="#">Press Kit</a></li></ul></div>
+  </div>
+  <div class="foot-btm"><p>© 2025 HavenCraft.</p><p>Spaces reimagined through computational intuition.</p></div>
+</footer>
+</div>
+
+<!-- ══════════════ INTELLIGENCE ══════════════ -->
+<div id="page-intel" class="page">
+<header class="ph">
+  <div class="tag">Under the Hood</div>
+  <h1>The <em>intelligence</em><br>that designs</h1>
+  <p>A deep look at the machine cognition powering HavenCraft's spatial reasoning engine.</p>
+</header>
+<section class="neural-sec">
+  <canvas id="n-canvas"></canvas>
+  <div class="n-in">
+    <div class="n-text">
+      <div class="sec-label">Neural Architecture</div>
+      <h2>Trained on <em>beauty</em>,<br>reasoning in space</h2>
+      <p>HavenCraft's core model is trained on over 2 million curated interior images, design principle databases, and human aesthetic preference data.</p>
+      <p>The result is a system that doesn't just pattern-match — it understands the principles underlying great design and applies them generatively.</p>
+      <div class="metrics" style="margin-top:2rem;">
+        <div class="mrow"><span class="mlabel">Style Recognition</span><div class="mbar"><div class="mfill" style="--pct:97%"></div></div><span class="mpct">97%</span></div>
+        <div class="mrow"><span class="mlabel">Layout Optimization</span><div class="mbar"><div class="mfill" style="--pct:94%"></div></div><span class="mpct">94%</span></div>
+        <div class="mrow"><span class="mlabel">Color Harmony</span><div class="mbar"><div class="mfill" style="--pct:98%"></div></div><span class="mpct">98%</span></div>
+        <div class="mrow"><span class="mlabel">User Satisfaction</span><div class="mbar"><div class="mfill" style="--pct:96%"></div></div><span class="mpct">96%</span></div>
+      </div>
+    </div>
+    <div class="nodes">
+      <div class="node central"><div class="n-lbl">HAVEN<br>CRAFT</div></div>
+      <div class="node n1"><div class="n-lbl">Style</div></div>
+      <div class="node n2"><div class="n-lbl">Color</div></div>
+      <div class="node n3"><div class="n-lbl">Layout</div></div>
+      <div class="node n4"><div class="n-lbl">Material</div></div>
+      <div class="node n5"><div class="n-lbl">Space</div></div>
+      <div class="node n6"><div class="n-lbl">Mood</div></div>
+    </div>
+  </div>
+</section>
+<section>
+  <div class="inner">
+    <div class="reveal"><div class="sec-label">Capabilities</div><h2 class="sec-title">What it can <em>perceive</em></h2></div>
+    <div class="cap-grid">
+      <div class="card cap-card reveal d1"><span class="cap-num">01</span><span class="cap-icon">◎</span><h3>Aesthetic Classification</h3><p>Identifies and categorizes design styles across 200+ distinct aesthetic vocabularies.</p></div>
+      <div class="card cap-card reveal d2"><span class="cap-num">02</span><span class="cap-icon">⬡</span><h3>Spatial Reasoning</h3><p>Models furniture placement, traffic flow, and human ergonomics within any room geometry.</p></div>
+      <div class="card cap-card reveal d3"><span class="cap-num">03</span><span class="cap-icon">❋</span><h3>Chromatic Intelligence</h3><p>Generates harmonious color palettes respecting psychological and lighting variables.</p></div>
+      <div class="card cap-card reveal d4"><span class="cap-num">04</span><span class="cap-icon">◈</span><h3>Material Synthesis</h3><p>Understands tactile, visual, and acoustic material properties in spatial combination.</p></div>
+    </div>
+    <div class="reveal" style="margin-top:4rem;">
+      <div class="sec-label">Model Layers</div>
+      <h2 class="sec-title">Architecture<br><em>in depth</em></h2>
+    </div>
+    <div class="layers">
+      <div class="layer reveal d1"><div class="l-n">L1</div><div class="l-info"><h4>Perception Layer</h4><p>Low-level feature extraction — edges, textures, spatial relationships, color distributions.</p></div><span class="l-badge">Foundation</span></div>
+      <div class="layer reveal d2"><div class="l-n">L2</div><div class="l-info"><h4>Semantic Layer</h4><p>Object recognition, style classification, material identification across design vocabularies.</p></div><span class="l-badge">Understanding</span></div>
+      <div class="layer reveal d3"><div class="l-n">L3</div><div class="l-info"><h4>Aesthetic Layer</h4><p>Harmony evaluation, proportion judgement, emotional resonance scoring.</p></div><span class="l-badge">Taste</span></div>
+      <div class="layer reveal d4"><div class="l-n">L4</div><div class="l-info"><h4>Generation Layer</h4><p>Creative synthesis — producing novel, coherent designs from learned aesthetic principles.</p></div><span class="l-badge">Creation</span></div>
+    </div>
+  </div>
+</section>
+<footer>
+  <div class="foot-in">
+    <div class="foot-brand"><a class="logo" onclick="go('home')">Haven<span>Craft</span></a><p>Intelligence sculpted into living spaces.</p></div>
+    <div class="fc"><h4>Platform</h4><ul><li><a onclick="go('how')">How It Works</a></li><li><a onclick="go('feat')">Features</a></li></ul></div>
+    <div class="fc"><h4>Company</h4><ul><li><a onclick="go('about')">About</a></li><li><a onclick="go('res')">Research</a></li></ul></div>
+    <div class="fc"><h4>Connect</h4><ul><li><a href="#">Press Kit</a></li></ul></div>
+  </div>
+  <div class="foot-btm"><p>© 2025 HavenCraft.</p><p>Spaces reimagined through computational intuition.</p></div>
+</footer>
+</div>
+
+<!-- ══════════════ FEATURES ══════════════ -->
+<div id="page-feat" class="page">
+<header class="ph">
+  <div class="tag">Full Feature Suite</div>
+  <h1>Everything you need to<br><em>design brilliantly</em></h1>
+  <p>A complete toolkit for spatial transformation — from first inspiration to final specification.</p>
+</header>
+<section>
+  <div class="inner">
+    <div class="fh-grid">
+      <div class="card fh-card reveal"><span class="fh-icon">✦</span><h3>Style Engine</h3><p>Twelve curated design vocabularies, infinitely blendable to your unique aesthetic.</p></div>
+      <div class="card fh-card reveal d1"><span class="fh-icon">◈</span><h3>Budget Optimizer</h3><p>Every recommendation calibrated to your financial parameters without sacrificing elegance.</p></div>
+      <div class="card fh-card reveal d2"><span class="fh-icon">⬡</span><h3>Layout Planner</h3><p>Intelligent spatial reasoning that optimizes flow, proportion, and livability.</p></div>
+    </div>
+    <div class="frows">
+      <div class="frow reveal">
+        <div class="fr-text">
+          <span class="pill">Personalization</span>
+          <h3>Spaces that feel <em>unmistakably</em> yours</h3>
+          <p>Our preference learning engine builds a deep model of your aesthetic sensibility from minimal input — translating vague intuitions into precise design language.</p>
+          <ul class="bens">
+            <li>Aesthetic preference mapping across 40+ dimensions</li>
+            <li>Style vocabulary that evolves with each interaction</li>
+            <li>Cross-room coherence for holistic home design</li>
+          </ul>
+        </div>
+        <div class="fr-vis"><canvas id="c-feat1" style="width:100%;height:100%;display:block;"></canvas></div>
+      </div>
+      <div class="frow rev reveal">
+        <div class="fr-text">
+          <span class="pill">Color Intelligence</span>
+          <h3>Palettes built on <em>chromatic law</em></h3>
+          <p>Color theory meets machine precision. Every palette curated for visual coherence, psychological effect, and emotional resonance — calibrated to your space's light conditions.</p>
+          <ul class="bens">
+            <li>Mood-based palette generation</li>
+            <li>Lighting-aware color adjustment</li>
+            <li>Material-color harmony analysis</li>
+          </ul>
+        </div>
+        <div class="fr-vis"><canvas id="c-feat2" style="width:100%;height:100%;display:block;"></canvas></div>
+      </div>
+      <div class="frow reveal">
+        <div class="fr-text">
+          <span class="pill">Layout Mastery</span>
+          <h3>Rooms that <em>breathe</em> and flow</h3>
+          <p>Spatial cognition modeling human movement, sight lines, and ergonomic requirements to produce layouts that are as functional as they are beautiful.</p>
+          <ul class="bens">
+            <li>Traffic flow optimization</li>
+            <li>Focal point hierarchy</li>
+            <li>Natural light maximization</li>
+          </ul>
+        </div>
+        <div class="fr-vis"><canvas id="c-feat3" style="width:100%;height:100%;display:block;"></canvas></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="mat-sec">
+  <div class="inner">
+    <div class="reveal"><div class="sec-label">Comparison</div><h2 class="sec-title">HavenCraft vs <em>traditional</em> design</h2></div>
+    <table class="mat-table">
+      <thead><tr><th>Capability</th><th>HavenCraft AI</th><th>Traditional Designer</th><th>DIY</th></tr></thead>
+      <tbody>
+        <tr><td>Turnaround Time</td><td><span class="ck">✦ &lt;60 seconds</span></td><td><span class="da">2–6 weeks</span></td><td><span class="da">Months</span></td></tr>
+        <tr><td>Budget Optimization</td><td><span class="ck">✦ Real-time</span></td><td><span class="da">Manual</span></td><td><span class="da">Guesswork</span></td></tr>
+        <tr><td>Style Range</td><td><span class="ck">✦ 12+ styles</span></td><td><span class="da">Specialization</span></td><td><span class="da">Limited</span></td></tr>
+        <tr><td>Accessibility</td><td><span class="ck">✦ Universal</span></td><td><span class="da">Premium only</span></td><td><span class="da">Variable</span></td></tr>
+        <tr><td>Iteration Speed</td><td><span class="ck">✦ Instant</span></td><td><span class="da">Days per revision</span></td><td><span class="da">Hours</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<footer>
+  <div class="foot-in">
+    <div class="foot-brand"><a class="logo" onclick="go('home')">Haven<span>Craft</span></a><p>Intelligence sculpted into living spaces.</p></div>
+    <div class="fc"><h4>Platform</h4><ul><li><a onclick="go('how')">How It Works</a></li><li><a onclick="go('intel')">Intelligence</a></li></ul></div>
+    <div class="fc"><h4>Company</h4><ul><li><a onclick="go('about')">About</a></li><li><a onclick="go('res')">Research</a></li></ul></div>
+    <div class="fc"><h4>Connect</h4><ul><li><a href="#">Press Kit</a></li></ul></div>
+  </div>
+  <div class="foot-btm"><p>© 2025 HavenCraft.</p><p>Spaces reimagined through computational intuition.</p></div>
+</footer>
+</div>
+
+<!-- ══════════════ RESEARCH ══════════════ -->
+<div id="page-res" class="page">
+<header class="ph">
+  <div class="tag">Research & Insights</div>
+  <h1>The science of<br><em>beautiful spaces</em></h1>
+  <p>Original research into spatial psychology, aesthetic computation, and the neuroscience of interior experience.</p>
+</header>
+<div class="inner">
+  <div class="res-strip">
+    <div class="ic"><canvas id="c-res1" style="width:100%;height:100%;display:block;"></canvas><div class="ic-ov"></div></div>
+    <div class="ic"><canvas id="c-res2" style="width:100%;height:100%;display:block;"></canvas><div class="ic-ov"></div></div>
+    <div class="ic"><canvas id="c-res3" style="width:100%;height:100%;display:block;"></canvas><div class="ic-ov"></div></div>
+  </div>
+  <div class="rg">
+    <div class="card pc reveal"><div class="p-type">White Paper</div><h3>Aesthetic Preference Mapping in Neural Architectures</h3><p>How transformer models develop taste: a study of emergent aesthetic judgment in large-scale visual training.</p><div class="pm"><span>2024 · 24 pages</span></div></div>
+    <div class="card pc reveal d1"><div class="p-type">Case Study</div><h3>Spatial Wellbeing: Interior Design & Mental Health Outcomes</h3><p>Longitudinal analysis of 2,400 participants living in AI-designed versus traditionally designed spaces.</p><div class="pm"><span>2024 · 18 pages</span></div></div>
+    <div class="card pc reveal d2"><div class="p-type">Research Paper</div><h3>Color Theory in Computational Design: Beyond Harmony Rules</h3><p>Machine learning approaches to chromatic relationships that transcend classical color theory.</p><div class="pm"><span>2023 · 31 pages</span></div></div>
+    <div class="card pc reveal d3"><div class="p-type">Analysis</div><h3>The Democratization Index: AI Design Adoption Patterns</h3><p>Tracking how AI interior tools are reshaping access to professional-quality design globally.</p><div class="pm"><span>2024 · 15 pages</span></div></div>
+  </div>
+  <div class="dg" style="margin-top:3rem;">
+    <div class="dc reveal"><span class="d-icon">◎</span><h4>Spatial Psychology</h4><p>How room geometry affects cognitive performance, mood, and social behavior.</p></div>
+    <div class="dc reveal d1"><span class="d-icon">❋</span><h4>Chromatic Neuroscience</h4><p>The neurological basis of color preference and its design implications.</p></div>
+    <div class="dc reveal d2"><span class="d-icon">⬡</span><h4>Ergonomic Intelligence</h4><p>Machine modeling of human movement patterns for optimal spatial arrangement.</p></div>
+  </div>
+</div>
+<section class="find-sec">
+  <div class="inner">
+    <div class="find-grid">
+      <div>
+        <div class="sec-label reveal">Key Findings</div>
+        <h2 class="sec-title reveal">What we've<br><em>discovered</em></h2>
+        <div class="find-list">
+          <div class="fi reveal d1"><h4>78% wellbeing improvement</h4><p>Participants in AI-designed spaces reported significantly higher mood and productivity scores.</p></div>
+          <div class="fi reveal d2"><h4>3.2× faster design decisions</h4><p>AI-assisted design reduces decision fatigue and time-to-completion dramatically.</p></div>
+          <div class="fi reveal d3"><h4>94% aesthetic accuracy</h4><p>Model predictions of user preference align with actual satisfaction ratings at record levels.</p></div>
+        </div>
+      </div>
+      <div>
+        <div class="k-stat reveal">
+          <span class="big-n">2M+</span>
+          <p>Interior images in our research dataset — the largest curated aesthetic corpus ever assembled.</p>
+        </div>
+        <div class="sp reveal d1">
+          <div class="ms2"><span class="num">47</span><p>Research papers published</p></div>
+          <div class="ms2"><span class="num">8</span><p>University partnerships</p></div>
+        </div>
+        <div class="meth reveal d2">
+          <div class="ms3"><div class="n">01</div><h4>Visual AI</h4><p>Computer vision trained on curated aesthetic datasets.</p></div>
+          <div class="ms3"><div class="n">02</div><h4>Surveys</h4><p>12,000+ participant preference studies.</p></div>
+          <div class="ms3"><div class="n">03</div><h4>Biometrics</h4><p>Physiological response measurement in designed spaces.</p></div>
+          <div class="ms3"><div class="n">04</div><h4>Longitudinal</h4><p>Multi-year wellbeing tracking in AI-designed homes.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<footer>
+  <div class="foot-in">
+    <div class="foot-brand"><a class="logo" onclick="go('home')">Haven<span>Craft</span></a><p>Intelligence sculpted into living spaces.</p></div>
+    <div class="fc"><h4>Platform</h4><ul><li><a onclick="go('how')">How It Works</a></li><li><a onclick="go('feat')">Features</a></li></ul></div>
+    <div class="fc"><h4>Company</h4><ul><li><a onclick="go('about')">About</a></li><li><a onclick="go('res')">Research</a></li></ul></div>
+    <div class="fc"><h4>Connect</h4><ul><li><a href="#">Press Kit</a></li></ul></div>
+  </div>
+  <div class="foot-btm"><p>© 2025 HavenCraft.</p><p>Spaces reimagined through computational intuition.</p></div>
+</footer>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+function go(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  window.scrollTo(0,0);
+  document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
+  const link = document.querySelector(`.nav-links a[onclick*="'${p}'"]`);
+  if(link) link.classList.add('active');
+  setTimeout(()=>{initCanvasesForPage(p);triggerReveals();},100);
+}
+function toggleMob(){document.getElementById('mNav').classList.toggle('open');}
+
+// ══════════════════════════════════════════
+// CURSOR
+// ══════════════════════════════════════════
+const cur = document.getElementById('cur');
+const ring = document.getElementById('cur-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+function animCursor(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animCursor);}
+animCursor();
+
+// ══════════════════════════════════════════
+// SCROLL
+// ══════════════════════════════════════════
+const sp = document.getElementById('sp');
+const nav = document.getElementById('nav');
+window.addEventListener('scroll',()=>{
+  const pct=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100;
+  sp.style.width=pct+'%';
+  nav.classList.toggle('scrolled',window.scrollY>60);
+  triggerReveals();
+  triggerMetrics();
+});
+
+function triggerReveals(){
+  document.querySelectorAll('.reveal:not(.visible)').forEach(el=>{
+    const r=el.getBoundingClientRect();
+    if(r.top<window.innerHeight*.88) el.classList.add('visible');
+  });
+}
+function triggerMetrics(){
+  document.querySelectorAll('.mfill:not(.anim)').forEach(el=>{
+    const r=el.getBoundingClientRect();
+    if(r.top<window.innerHeight) el.classList.add('anim');
+  });
+}
+setTimeout(triggerReveals,300);
+
+// ══════════════════════════════════════════
+// COUNT-UP
+// ══════════════════════════════════════════
+function countUp(){
+  document.querySelectorAll('.cu').forEach(el=>{
+    const t=+el.dataset.t, s=el.dataset.s||'';
+    let c=0, dur=1800, step=Math.ceil(dur/(t*16));
+    const iv=setInterval(()=>{c=Math.min(c+1,t);el.textContent=c+s;if(c>=t)clearInterval(iv);},step);
+  });
+}
+setTimeout(countUp,400);
+
+// ══════════════════════════════════════════
+// HERO CANVAS — flowing particles with golden filaments
+// ══════════════════════════════════════════
+(function(){
+  const cv=document.getElementById('bg-canvas');
+  if(!cv)return;
+  const ctx=cv.getContext('2d');
+  let W,H;
+  function resize(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight;}
+  resize();window.addEventListener('resize',resize);
+  const pts=Array.from({length:80},()=>({
+    x:Math.random()*W,y:Math.random()*H,
+    vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,
+    r:Math.random()*2+1,
+    hue:Math.random()<.5?40:120,
+    a:Math.random()*.6+.2
+  }));
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<pts.length;i++){
+      for(let j=i+1;j<pts.length;j++){
+        const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<130){
+          ctx.beginPath();
+          ctx.moveTo(pts[i].x,pts[i].y);
+          ctx.lineTo(pts[j].x,pts[j].y);
+          const a=(1-d/130)*.12;
+          ctx.strokeStyle=`rgba(160,120,32,${a})`;
+          ctx.lineWidth=.8;
+          ctx.stroke();
+        }
+      }
+    }
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>W)p.vx*=-1;
+      if(p.y<0||p.y>H)p.vy*=-1;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue},60%,40%,${p.a})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ══════════════════════════════════════════
+// NEURAL CANVAS — branching lines
+// ══════════════════════════════════════════
+(function(){
+  const cv=document.getElementById('n-canvas');
+  if(!cv)return;
+  const ctx=cv.getContext('2d');
+  let W,H;
+  function resize(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight;}
+  resize();window.addEventListener('resize',resize);
+  const nodes=Array.from({length:60},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3}));
+  let t=0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);t++;
+    nodes.forEach(n=>{
+      n.x+=n.vx;n.y+=n.vy;
+      if(n.x<0||n.x>W)n.vx*=-1;
+      if(n.y<0||n.y>H)n.vy*=-1;
+    });
+    for(let i=0;i<nodes.length;i++){
+      for(let j=i+1;j<nodes.length;j++){
+        const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<100){
+          const pulse=(Math.sin(t*.02+i*.3)*.5+.5);
+          ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);
+          ctx.strokeStyle=`rgba(100,150,70,${(1-d/100)*.15*pulse})`;
+          ctx.lineWidth=.6;ctx.stroke();
+        }
+      }
+    }
+    nodes.forEach((n,i)=>{
+      ctx.beginPath();ctx.arc(n.x,n.y,1.5,0,Math.PI*2);
+      ctx.fillStyle=`rgba(120,170,80,${.3+.2*Math.sin(t*.03+i)})`;ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ══════════════════════════════════════════
+// CANVAS PAINTERS — Aesthetic room/scene generators
+// ══════════════════════════════════════════
+
+const PALETTES = {
+  japandi:   {bg:'#E8E2D8',wall:'#D4CCBA',floor:'#B8A882',accent:'#5A4A2A',soft:'#8A7A5A',muted:'rgba(90,74,42,0.15)'},
+  scandi:    {bg:'#F0EDE8',wall:'#E8E0D0',floor:'#C8B898',accent:'#7A9070',soft:'#A8B8A0',muted:'rgba(122,144,112,0.15)'},
+  contemp:   {bg:'#E2E2E0',wall:'#D0CEC8',floor:'#9A9888',accent:'#6A8090',soft:'#909EA8',muted:'rgba(106,128,144,0.15)'},
+  artdeco:   {bg:'#2A1F0E',wall:'#1A1408',floor:'#3A2E18',accent:'#C49A3A',soft:'#A07820',muted:'rgba(196,154,58,0.2)'},
+  boho:      {bg:'#E8D8C8',wall:'#D8C4A8',floor:'#C4A878',accent:'#B05030',soft:'#C87848',muted:'rgba(176,80,48,0.15)'},
+  modern:    {bg:'#F4F0EC',wall:'#EAE4DA',floor:'#C8BEA8',accent:'#A07820',soft:'#B89840',muted:'rgba(160,120,32,0.15)'},
+  material:  {bg:'#EEE8E0',wall:'#E0D8CA',floor:'#C0B49A',accent:'#7A6040',soft:'#9A8060',muted:'rgba(122,96,64,0.15)'},
+  neural:    {bg:'#F0EEE8',wall:'#E8E2D8',floor:'#D0C8B8',accent:'#8A7050',soft:'#A89070',muted:'rgba(138,112,80,0.15)'},
+};
+
+function drawRoom(ctx, W, H, pal, t, opts={}) {
+  const {showSofa=true,showPlant=true,showLight=true,showRug=true,particles=false,grid=false,waveform=false} = opts;
+  
+  ctx.fillStyle = pal.bg;
+  ctx.fillRect(0,0,W,H);
+  
+  for(let i=0;i<200;i++){
+    ctx.fillStyle=`rgba(0,0,0,${Math.random()*.025})`;
+    ctx.fillRect(Math.random()*W,Math.random()*H,Math.random()*3+1,Math.random()*3+1);
+  }
+
+  if(grid) {
+    ctx.strokeStyle=`rgba(160,120,32,0.07)`;
+    ctx.lineWidth=.5;
+    for(let x=0;x<W;x+=20){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<H;y+=20){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  }
+
+  const fy = H * 0.55;
+  const grad_floor = ctx.createLinearGradient(0,fy,0,H);
+  grad_floor.addColorStop(0,pal.floor);
+  grad_floor.addColorStop(1,shadeColor(pal.floor,-20));
+  ctx.fillStyle=grad_floor;
+  ctx.beginPath();ctx.moveTo(0,fy);ctx.lineTo(W,fy);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();ctx.fill();
+  
+  ctx.strokeStyle=`rgba(0,0,0,0.06)`;ctx.lineWidth=.8;
+  for(let y=fy+20;y<H;y+=22){
+    ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
+  }
+
+  const wall_grad = ctx.createLinearGradient(0,0,W,0);
+  wall_grad.addColorStop(0,shadeColor(pal.wall,-8));
+  wall_grad.addColorStop(0.5,pal.wall);
+  wall_grad.addColorStop(1,shadeColor(pal.wall,-8));
+  ctx.fillStyle=wall_grad;
+  ctx.fillRect(0,0,W,fy);
+
+  ctx.fillStyle=shadeColor(pal.wall,-15);
+  ctx.fillRect(0,fy-6,W,6);
+
+  const sw=ctx.createLinearGradient(0,0,W*0.12,0);
+  sw.addColorStop(0,'rgba(0,0,0,0.08)');sw.addColorStop(1,'transparent');
+  ctx.fillStyle=sw;ctx.fillRect(0,0,W*0.12,H);
+
+  const sw2=ctx.createLinearGradient(W,0,W*0.88,0);
+  sw2.addColorStop(0,'rgba(0,0,0,0.08)');sw2.addColorStop(1,'transparent');
+  ctx.fillStyle=sw2;ctx.fillRect(W*0.88,0,W*0.12,H);
+
+  const wx=W*.32, wy=H*.08, ww=W*.36, wh=H*.36;
+  const dayLight = ctx.createRadialGradient(wx+ww/2,wy+wh/2,wh*.1,wx+ww/2,wy,wh*1.4);
+  dayLight.addColorStop(0,'rgba(255,250,220,0.6)');
+  dayLight.addColorStop(1,'rgba(255,250,220,0)');
+  ctx.fillStyle=dayLight;ctx.fillRect(0,0,W,fy);
+  
+  ctx.fillStyle=shadeColor(pal.wall,15);
+  ctx.fillRect(wx-4,wy-4,ww+8,wh+8);
+  ctx.fillStyle='rgba(200,230,255,0.4)';
+  ctx.fillRect(wx,wy,ww,wh);
+  ctx.strokeStyle=shadeColor(pal.wall,8);ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(wx+ww/2,wy);ctx.lineTo(wx+ww/2,wy+wh);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(wx,wy+wh/2);ctx.lineTo(wx+ww,wy+wh/2);ctx.stroke();
+  const shine=ctx.createLinearGradient(wx,wy,wx+ww*.5,wy+wh*.5);
+  shine.addColorStop(0,'rgba(255,255,255,0.15)');shine.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=shine;ctx.fillRect(wx,wy,ww,wh);
+
+  if(showRug){
+    const rx=W*.15, ry=fy+H*.12, rw=W*.7, rh=H*.22;
+    ctx.fillStyle=pal.muted;
+    ctx.save();
+    roundRect(ctx,rx,ry,rw,rh,8);ctx.fill();
+    ctx.strokeStyle=`rgba(0,0,0,0.08)`;ctx.lineWidth=2;
+    ctx.save();roundRect(ctx,rx+8,ry+8,rw-16,rh-16,4);ctx.stroke();ctx.restore();
+    ctx.restore();
+  }
+
+  if(showSofa){
+    const sx=W*.1, sy=fy+H*.05, sw3=W*.55, sh=H*.22;
+    const sg=ctx.createLinearGradient(sx,sy,sx,sy+sh);
+    sg.addColorStop(0,shadeColor(pal.soft,10));sg.addColorStop(1,shadeColor(pal.soft,-20));
+    ctx.fillStyle=sg;
+    ctx.save();roundRect(ctx,sx,sy+sh*.15,sw3,sh*.85,6);ctx.fill();ctx.restore();
+    ctx.fillStyle=shadeColor(pal.soft,5);
+    ctx.save();roundRect(ctx,sx,sy,sw3,sh*.25,4);ctx.fill();ctx.restore();
+    const nc=3, cw=(sw3-16)/(nc+.5);
+    for(let i=0;i<nc;i++){
+      const cx2=sx+8+i*(cw+6), cy2=sy+sh*.2;
+      ctx.fillStyle=shadeColor(pal.soft,8);
+      ctx.save();roundRect(ctx,cx2,cy2,cw,sh*.6,4);ctx.fill();ctx.restore();
+      ctx.strokeStyle='rgba(0,0,0,0.06)';ctx.lineWidth=1;
+      ctx.save();roundRect(ctx,cx2+4,cy2+4,cw-8,sh*.6-8,2);ctx.stroke();ctx.restore();
+    }
+    ctx.fillStyle=shadeColor(pal.accent,0);
+    ctx.fillRect(sx+10,sy+sh,8,H*.05);ctx.fillRect(sx+sw3-18,sy+sh,8,H*.05);
+  }
+
+  const tx=W*.7, ty=fy+H*.08;
+  ctx.fillStyle=shadeColor(pal.accent,-10);
+  roundRect(ctx,tx,ty,W*.12,H*.04,3);ctx.fill();
+  ctx.fillStyle=shadeColor(pal.accent,-20);
+  ctx.fillRect(tx+W*.025,ty+H*.04,W*.004,H*.12);
+  ctx.fillRect(tx+W*.09,ty+H*.04,W*.004,H*.12);
+
+  if(showLight){
+    const lx=tx+W*.06, ly=ty-H*.22;
+    const lh=H*.2;
+    ctx.fillStyle=`rgba(255,240,200,0.9)`;
+    ctx.beginPath();ctx.moveTo(lx-W*.04,ly+lh*.4);ctx.lineTo(lx+W*.04,ly+lh*.4);ctx.lineTo(lx+W*.025,ly);ctx.lineTo(lx-W*.025,ly);ctx.closePath();ctx.fill();
+    if(t) {
+      const lg=ctx.createRadialGradient(lx,ly+lh*.5,0,lx,ly+lh*.5,W*.12);
+      lg.addColorStop(0,`rgba(255,230,150,${.2+.05*Math.sin(t*.03)})`);
+      lg.addColorStop(1,'rgba(255,230,150,0)');
+      ctx.fillStyle=lg;ctx.beginPath();ctx.arc(lx,ly+lh*.5,W*.12,0,Math.PI*2);ctx.fill();
+    }
+    ctx.strokeStyle=shadeColor(pal.accent,-10);ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(lx,ly+lh*.4);ctx.lineTo(lx,ty);ctx.stroke();
+    ctx.fillStyle=shadeColor(pal.accent,-10);
+    ctx.save();roundRect(ctx,lx-W*.025,ty-H*.02,W*.05,H*.02,2);ctx.fill();ctx.restore();
+  }
+
+  if(showPlant){
+    const px=W*.84, py=fy+H*.04;
+    ctx.fillStyle=shadeColor(pal.accent,10);
+    ctx.beginPath();ctx.moveTo(px-W*.028,py+H*.1);ctx.lineTo(px+W*.028,py+H*.1);ctx.lineTo(px+W*.022,py+H*.18);ctx.lineTo(px-W*.022,py+H*.18);ctx.closePath();ctx.fill();
+    const leafCols=['rgba(60,100,40,0.8)','rgba(80,130,50,0.7)','rgba(50,90,35,0.9)'];
+    for(let i=0;i<7;i++){
+      const ang=-Math.PI*.3+i*Math.PI*.13+ (t?.005*Math.sin(t*.02+i):.0);
+      const len=H*.15+i*H*.012;
+      ctx.strokeStyle=leafCols[i%3];ctx.lineWidth=3-i*.15;
+      ctx.beginPath();
+      ctx.moveTo(px,py);
+      ctx.bezierCurveTo(
+        px+Math.cos(ang-0.3)*len*.5, py+Math.sin(ang-0.3)*len*.5,
+        px+Math.cos(ang+0.3)*len*.8, py+Math.sin(ang+0.3)*len*.8,
+        px+Math.cos(ang)*len, py+Math.sin(ang)*len
+      );
+      ctx.stroke();
+    }
+  }
+
+  if(waveform&&t){
+    ctx.strokeStyle=`rgba(160,120,32,0.4)`;ctx.lineWidth=1.5;
+    ctx.beginPath();
+    for(let x=0;x<W;x+=2){
+      const y2=H*.12+Math.sin(x*.04+t*.05)*H*.04+Math.sin(x*.08+t*.03)*H*.02;
+      x===0?ctx.moveTo(x,y2):ctx.lineTo(x,y2);
+    }
+    ctx.stroke();
+  }
+
+  if(particles&&t){
+    for(let i=0;i<12;i++){
+      const px2=(Math.sin(t*.008+i*2.4)*W*.45+W*.5);
+      const py2=(Math.cos(t*.006+i*1.8)*H*.3+fy*.3);
+      const a=(.5+.5*Math.sin(t*.04+i))*.3;
+      ctx.beginPath();ctx.arc(px2,py2,1.5,0,Math.PI*2);
+      ctx.fillStyle=`rgba(160,120,32,${a})`;ctx.fill();
+    }
+  }
+}
+
+function drawStyleScene(ctx, W, H, style, t) {
+  const scenes = {
+    japandi: ()=>{
+      drawRoom(ctx,W,H,PALETTES.japandi,t,{showSofa:true,showPlant:true,showLight:true,showRug:true});
+      ctx.strokeStyle='rgba(90,74,42,0.12)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(W*.5,H*.28,H*.18,0,Math.PI*2);ctx.stroke();
+    },
+    scandi: ()=>{
+      drawRoom(ctx,W,H,PALETTES.scandi,t,{showSofa:true,showPlant:true,showLight:true,showRug:false});
+    },
+    contemp: ()=>{
+      drawRoom(ctx,W,H,PALETTES.contemp,t,{showSofa:true,showPlant:false,showLight:true,showRug:true,grid:true});
+    },
+    artdeco: ()=>{
+      drawRoom(ctx,W,H,PALETTES.artdeco,t,{showSofa:false,showPlant:false,showLight:true,showRug:true});
+      ctx.strokeStyle='rgba(196,154,58,0.25)';ctx.lineWidth=1;
+      const cx2=W*.5,cy2=H*.3;
+      for(let r=20;r<H*.5;r+=30){
+        ctx.beginPath();ctx.arc(cx2,cy2,r,0,Math.PI*2);ctx.stroke();
+      }
+      for(let a=0;a<Math.PI*2;a+=Math.PI/8){
+        ctx.beginPath();ctx.moveTo(cx2,cy2);
+        ctx.lineTo(cx2+Math.cos(a)*H*.5,cy2+Math.sin(a)*H*.5);ctx.stroke();
+      }
+    },
+    boho: ()=>{
+      drawRoom(ctx,W,H,PALETTES.boho,t,{showSofa:true,showPlant:true,showLight:false,showRug:true});
+      for(let i=0;i<8;i++){
+        const bx=W*.2+i*W*.08, by=H*.05+Math.sin(i*1.4)*H*.04;
+        ctx.fillStyle='rgba(176,80,48,0.15)';
+        ctx.beginPath();ctx.arc(bx,by+(t?Math.sin(t*.02+i)*.003*H:0),4,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='rgba(176,80,48,0.1)';ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(bx,0);ctx.lineTo(bx,by);ctx.stroke();
+      }
+    },
+  };
+  if(scenes[style]) scenes[style]();
+}
+
+function drawAnalytical(ctx, W, H, theme, t) {
+  const themes = {
+    vision: ()=>{
+      ctx.fillStyle='#1A1408';ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(160,120,32,0.12)';ctx.lineWidth=.5;
+      for(let x=0;x<W;x+=20){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+      for(let y=0;y<H;y+=20){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+      const sy=((t*.8)%H);
+      const sg=ctx.createLinearGradient(0,sy-20,0,sy+20);
+      sg.addColorStop(0,'rgba(160,120,32,0)');sg.addColorStop(.5,'rgba(160,120,32,0.3)');sg.addColorStop(1,'rgba(160,120,32,0)');
+      ctx.fillStyle=sg;ctx.fillRect(0,sy-20,W,40);
+      for(let i=0;i<15;i++){
+        const nx=W*.1+((i*W*.078+t*.2)%(W*.85));
+        const ny=H*.2+Math.sin(i*1.7+t*.02)*H*.3;
+        ctx.fillStyle=`rgba(196,154,58,${.5+.3*Math.sin(t*.05+i)})`;
+        ctx.beginPath();ctx.arc(nx,ny,2+Math.sin(t*.04+i)*1,0,Math.PI*2);ctx.fill();
+        if(i>0){
+          const px3=(((i-1)*W*.078+t*.2)%(W*.85))+W*.1;
+          const py3=H*.2+Math.sin((i-1)*1.7+t*.02)*H*.3;
+          ctx.strokeStyle='rgba(196,154,58,0.2)';ctx.lineWidth=.8;
+          ctx.beginPath();ctx.moveTo(px3,py3);ctx.lineTo(nx,ny);ctx.stroke();
+        }
+      }
+      ctx.fillStyle='rgba(196,154,58,0.5)';ctx.font='9px monospace';
+      ctx.fillText('SPATIAL ANALYSIS',12,H-14);
+    },
+    analysis: ()=>{
+      ctx.fillStyle='#0E1814';ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(80,160,100,0.6)';ctx.lineWidth=1.5;
+      ctx.beginPath();
+      for(let x=0;x<W;x+=1){
+        const y2=H*.5+Math.sin(x*.05+t*.04)*H*.2+Math.sin(x*.12+t*.03)*H*.08+Math.sin(x*.03+t*.06)*H*.1;
+        x===0?ctx.moveTo(x,y2):ctx.lineTo(x,y2);
+      }
+      ctx.stroke();
+      ctx.strokeStyle='rgba(160,120,32,0.3)';ctx.lineWidth=1;
+      ctx.beginPath();
+      for(let x=0;x<W;x+=1){
+        const y2=H*.5+Math.sin(x*.08+t*.06)*H*.15+Math.cos(x*.04+t*.02)*H*.05;
+        x===0?ctx.moveTo(x,y2):ctx.lineTo(x,y2);
+      }
+      ctx.stroke();
+      const pd_x=W*.5, pd_y=H*.5+Math.sin(W*.025+t*.04)*H*.2;
+      const pg=ctx.createRadialGradient(pd_x,pd_y,0,pd_x,pd_y,20+5*Math.sin(t*.05));
+      pg.addColorStop(0,'rgba(80,160,100,0.8)');pg.addColorStop(1,'rgba(80,160,100,0)');
+      ctx.fillStyle=pg;ctx.beginPath();ctx.arc(pd_x,pd_y,20+5*Math.sin(t*.05),0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(80,160,100,0.5)';ctx.font='9px monospace';ctx.fillText('AI PROCESSING',12,H-14);
+    },
+    output: ()=>{
+      drawRoom(ctx,W,H,PALETTES.modern,t,{showSofa:true,showPlant:true,showLight:true,showRug:true,particles:true});
+      const og=ctx.createLinearGradient(0,H*.7,0,H);
+      og.addColorStop(0,'rgba(245,240,234,0)');og.addColorStop(1,'rgba(245,240,234,0.5)');
+      ctx.fillStyle=og;ctx.fillRect(0,H*.7,W,H*.3);
+    },
+    about_main: ()=>{
+      ctx.fillStyle='#2A1F0E';ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(196,154,58,0.12)';ctx.lineWidth=.5;
+      for(let x=0;x<W;x+=16){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+      for(let y=0;y<H;y+=16){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+      ctx.strokeStyle='rgba(196,154,58,0.5)';ctx.lineWidth=1.5;
+      const rooms=[
+        [W*.1,H*.15,W*.5,H*.5],[W*.62,H*.15,W*.28,H*.3],[W*.62,H*.5,W*.28,H*.24],
+        [W*.1,H*.68,W*.38,H*.2],[W*.5,H*.68,W*.4,H*.2]
+      ];
+      rooms.forEach(([x,y,w,h])=>{ctx.strokeRect(x,y,w,h);});
+      const cx3=W*.85,cy3=H*.2,cr=H*.1;
+      ctx.strokeStyle='rgba(196,154,58,0.4)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(cx3,cy3,cr,0,Math.PI*2);ctx.stroke();
+      for(let a=0;a<Math.PI*2;a+=Math.PI/4){
+        const aa=a+(t*.005);
+        ctx.beginPath();ctx.moveTo(cx3,cy3);
+        ctx.lineTo(cx3+Math.cos(aa)*cr,cy3+Math.sin(aa)*cr);ctx.stroke();
+      }
+      ctx.fillStyle='rgba(196,154,58,0.35)';ctx.font='9px monospace';
+      ctx.fillText('FLOOR PLAN',W*.1,H*.1);
+    },
+    about_s1: ()=>{
+      ctx.fillStyle='#F5F0EA';ctx.fillRect(0,0,W,H);
+      const cols=['#A07820','#527A38','#C49A3A','#3A5A2A','#8B6B3A','#D4C8A8','#7BA85A','#2A3D1A'];
+      cols.forEach((c,i)=>{
+        const sw2=W/cols.length;
+        const wave=Math.sin(t*.03+i*.8)*(H*.05);
+        ctx.fillStyle=c;
+        ctx.fillRect(i*sw2,wave,sw2+1,H-wave);
+        const hg=ctx.createLinearGradient(i*sw2,0,(i+1)*sw2,0);
+        hg.addColorStop(0,'rgba(255,255,255,0.15)');hg.addColorStop(1,'rgba(255,255,255,0)');
+        ctx.fillStyle=hg;ctx.fillRect(i*sw2,wave,sw2*.5,H-wave);
+      });
+      ctx.fillStyle='rgba(245,240,234,0.7)';ctx.font='bold 11px serif';
+      ctx.fillText('CHROMATIC SYSTEM',12,H-12);
+    },
+    about_s2: ()=>{
+      ctx.fillStyle='#EBE0CF';ctx.fillRect(0,0,W,H);
+      const mats=[
+        {c:'#B8A882',y:0,h:H*.35,label:'Oak Wood'},
+        {c:'#D0C8B8',y:H*.35,h:H*.2,label:'Linen'},
+        {c:'#8A7A5A',y:H*.55,h:H*.2,label:'Leather'},
+        {c:'#C0B498',y:H*.75,h:H*.25,label:'Travertine'},
+      ];
+      mats.forEach(m=>{
+        ctx.fillStyle=m.c;ctx.fillRect(0,m.y,W,m.h);
+        ctx.strokeStyle='rgba(0,0,0,0.05)';ctx.lineWidth=.8;
+        for(let i=0;i<8;i++){
+          ctx.beginPath();
+          ctx.moveTo(Math.random()*W*.3,m.y+m.h*.1+Math.random()*m.h*.8);
+          ctx.lineTo(W,m.y+m.h*.1+Math.random()*m.h*.8);ctx.stroke();
+        }
+        ctx.fillStyle='rgba(245,240,234,0.5)';ctx.font='9px serif';
+        ctx.fillText(m.label,10,m.y+m.h*.6);
+      });
+    },
+    feat_personalization: ()=>{
+      ctx.fillStyle='#F4F0EC';ctx.fillRect(0,0,W,H);
+      const cx4=W*.5,cy4=H*.5,r=Math.min(W,H)*.38;
+      const dims=['Style','Color','Light','Texture','Flow','Scale'];
+      const vals=[.9,.75,.85,.7,.95,.8];
+      for(let ring2=1;ring2<=4;ring2++){
+        ctx.strokeStyle='rgba(160,120,32,0.1)';ctx.lineWidth=.8;ctx.beginPath();
+        dims.forEach((_,i)=>{
+          const a=i/dims.length*Math.PI*2-Math.PI/2;
+          const rr=r*ring2/4;
+          i===0?ctx.moveTo(cx4+Math.cos(a)*rr,cy4+Math.sin(a)*rr):ctx.lineTo(cx4+Math.cos(a)*rr,cy4+Math.sin(a)*rr);
+        });ctx.closePath();ctx.stroke();
+      }
+      dims.forEach((_,i)=>{
+        const a=i/dims.length*Math.PI*2-Math.PI/2;
+        ctx.strokeStyle='rgba(160,120,32,0.15)';ctx.lineWidth=.8;
+        ctx.beginPath();ctx.moveTo(cx4,cy4);ctx.lineTo(cx4+Math.cos(a)*r,cy4+Math.sin(a)*r);ctx.stroke();
+        ctx.fillStyle='rgba(42,31,14,0.4)';ctx.font='9px serif';
+        ctx.fillText(dims[i],cx4+Math.cos(a)*(r+14)-10,cy4+Math.sin(a)*(r+14)+4);
+      });
+      ctx.fillStyle='rgba(160,120,32,0.15)';ctx.strokeStyle='rgba(160,120,32,0.6)';ctx.lineWidth=1.5;
+      ctx.beginPath();
+      dims.forEach((_,i)=>{
+        const a=i/dims.length*Math.PI*2-Math.PI/2;
+        const vr=vals[i]*r;
+        i===0?ctx.moveTo(cx4+Math.cos(a)*vr,cy4+Math.sin(a)*vr):ctx.lineTo(cx4+Math.cos(a)*vr,cy4+Math.sin(a)*vr);
+      });ctx.closePath();ctx.fill();ctx.stroke();
+      dims.forEach((_,i)=>{
+        const a=i/dims.length*Math.PI*2-Math.PI/2;
+        const vr=vals[i]*r;
+        ctx.fillStyle='rgba(160,120,32,0.8)';ctx.beginPath();
+        ctx.arc(cx4+Math.cos(a)*vr,cy4+Math.sin(a)*vr,3,0,Math.PI*2);ctx.fill();
+      });
+    },
+    feat_color: ()=>{
+      ctx.fillStyle='#F4F0EC';ctx.fillRect(0,0,W,H);
+      const cx5=W*.5,cy5=H*.5,r2=Math.min(W,H)*.38;
+      for(let a=0;a<360;a+=1){
+        const ra=a*Math.PI/180;
+        const g2=ctx.createRadialGradient(cx5,cy5,r2*.3,cx5,cy5,r2);
+        g2.addColorStop(0,`hsla(${a},60%,75%,0.9)`);g2.addColorStop(1,`hsla(${a},70%,50%,0.8)`);
+        ctx.fillStyle=g2;ctx.beginPath();
+        ctx.moveTo(cx5,cy5);ctx.arc(cx5,cy5,r2,ra,ra+Math.PI/180*1.5);ctx.closePath();ctx.fill();
+      }
+      ctx.fillStyle='rgba(245,240,234,0.9)';ctx.beginPath();ctx.arc(cx5,cy5,r2*.3,0,Math.PI*2);ctx.fill();
+      const sa=(t*.01)%(Math.PI*2);
+      const sr=r2*.65;
+      ctx.fillStyle='rgba(255,255,255,0.9)';ctx.strokeStyle='rgba(42,31,14,0.5)';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.arc(cx5+Math.cos(sa)*sr,cy5+Math.sin(sa)*sr,7,0,Math.PI*2);ctx.fill();ctx.stroke();
+    },
+    feat_layout: ()=>{
+      ctx.fillStyle='#1A1408';ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(196,154,58,0.6)';ctx.lineWidth=1.5;
+      const frooms=[
+        [W*.05,H*.1,W*.45,H*.55],[W*.52,H*.1,W*.43,H*.3],[W*.52,H*.44,W*.43,H*.21],
+        [W*.05,H*.68,W*.28,H*.26],[W*.36,H*.68,W*.59,H*.26]
+      ];
+      frooms.forEach(([x,y,w,h],i)=>{
+        const prog=Math.min(1,(t*2-i*12)/40);
+        if(prog<=0)return;
+        ctx.strokeStyle=`rgba(196,154,58,${.3+.3*Math.sin(t*.04+i)})`;
+        ctx.strokeRect(x,y,w*prog,h);
+      });
+      const dots=[[W*.25,H*.38],[W*.65,H*.25],[W*.65,H*.55],[W*.2,H*.8],[W*.6,H*.8]];
+      dots.forEach((d,i)=>{
+        if(t<i*8)return;
+        const a=Math.min(1,(t-i*8)/15);
+        ctx.fillStyle=`rgba(196,154,58,${a*.5})`;
+        ctx.beginPath();ctx.arc(d[0],d[1],5,0,Math.PI*2);ctx.fill();
+      });
+      ctx.fillStyle='rgba(196,154,58,0.4)';ctx.font='9px monospace';ctx.fillText('LAYOUT ENGINE',12,H-12);
+    },
+    res_data: ()=>{
+      ctx.fillStyle='#F5F0EA';ctx.fillRect(0,0,W,H);
+      const bars=[.6,.8,.95,.7,.85,.9,.75];
+      const bw=W/(bars.length*1.6), gap=(W-bars.length*bw)/(bars.length+1);
+      bars.forEach((v,i)=>{
+        const x=gap+i*(bw+gap), bh=H*.6*v, y=H*.9-bh;
+        const bg=ctx.createLinearGradient(x,y,x,H*.9);
+        bg.addColorStop(0,`rgba(160,120,32,${.5+.3*Math.sin(t*.04+i)})`);
+        bg.addColorStop(1,'rgba(160,120,32,0.2)');
+        ctx.fillStyle=bg;
+        ctx.save();roundRect(ctx,x,y,bw,bh,3);ctx.fill();ctx.restore();
+      });
+      ctx.fillStyle='rgba(42,31,14,0.3)';ctx.fillRect(0,H*.9,W,1);
+      ctx.fillStyle='rgba(42,31,14,0.4)';ctx.font='9px serif';ctx.fillText('RESEARCH DATA',12,H-10);
+    },
+    res_neuro: ()=>{
+      ctx.fillStyle='#0E1010';ctx.fillRect(0,0,W,H);
+      const waves=[
+        {y:H*.25,a:H*.08,f:.05,c:'rgba(80,200,130,0.5)',lbl:'Alpha'},
+        {y:H*.5,a:H*.05,f:.12,c:'rgba(100,160,200,0.5)',lbl:'Beta'},
+        {y:H*.75,a:H*.1,f:.03,c:'rgba(200,120,80,0.5)',lbl:'Theta'},
+      ];
+      waves.forEach(w=>{
+        ctx.strokeStyle=w.c;ctx.lineWidth=1.5;ctx.beginPath();
+        for(let x=0;x<W;x+=1){
+          const y2=w.y+Math.sin(x*w.f+t*.04)*w.a;
+          x===0?ctx.moveTo(x,y2):ctx.lineTo(x,y2);
+        }ctx.stroke();
+        ctx.fillStyle=w.c;ctx.font='8px monospace';ctx.fillText(w.lbl,4,w.y-4);
+      });
+      ctx.fillStyle='rgba(100,200,150,0.3)';ctx.font='9px monospace';ctx.fillText('NEURO RESPONSE',12,H-10);
+    },
+    res_wellbeing: ()=>{
+      ctx.fillStyle='#F5F0EA';ctx.fillRect(0,0,W,H);
+      ctx.fillStyle='rgba(200,180,150,0.4)';ctx.fillRect(0,0,W*.5,H);
+      ctx.fillStyle='rgba(120,170,100,0.25)';ctx.fillRect(W*.5,0,W*.5,H);
+      ctx.strokeStyle='rgba(160,120,32,0.3)';ctx.lineWidth=1;
+      ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(W*.5,0);ctx.lineTo(W*.5,H);ctx.stroke();ctx.setLineDash([]);
+      [[W*.25,H*.5,'Before',0.35],[W*.75,H*.5,'After',0.78]].forEach(([x,y,lbl,p])=>{
+        const r3=Math.min(W,H)*.22;
+        ctx.strokeStyle='rgba(200,180,150,0.2)';ctx.lineWidth=8;
+        ctx.beginPath();ctx.arc(x,y,r3,-Math.PI/2,Math.PI*2-Math.PI/2);ctx.stroke();
+        ctx.strokeStyle=p>.6?'rgba(100,160,70,0.8)':'rgba(160,120,32,0.6)';ctx.lineWidth=8;
+        ctx.beginPath();ctx.arc(x,y,r3,-Math.PI/2,-Math.PI/2+Math.PI*2*p*(Math.min(1,t/60)));ctx.stroke();
+        ctx.fillStyle='rgba(42,31,14,0.6)';ctx.font='bold 11px serif';
+        ctx.textAlign='center';ctx.fillText(Math.round(p*100)+'%',x,y+4);
+        ctx.font='8px serif';ctx.fillText(lbl,x,y+H*.2);ctx.textAlign='left';
+      });
+    },
+  };
+  if(themes[theme]) themes[theme]();
+}
+
+function shadeColor(c, amt) {
+  const hex=c.replace('#','');
+  const r=Math.max(0,Math.min(255,parseInt(hex.substr(0,2),16)+amt));
+  const g=Math.max(0,Math.min(255,parseInt(hex.substr(2,2),16)+amt));
+  const b=Math.max(0,Math.min(255,parseInt(hex.substr(4,2),16)+amt));
+  return `rgb(${r},${g},${b})`;
+}
+function roundRect(ctx,x,y,w,h,r) {
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();
+}
+
+const animatedCanvases = [];
+let rafRunning = false;
+let globalT = 0;
+
+function registerCanvas(id, drawFn) {
+  const cv = document.getElementById(id);
+  if(!cv) return;
+  const rect = cv.getBoundingClientRect();
+  cv.width = rect.width || cv.offsetWidth || 400;
+  cv.height = rect.height || cv.offsetHeight || 300;
+  const ctx = cv.getContext('2d');
+  animatedCanvases.push({cv, ctx, drawFn});
+  
+  new ResizeObserver(()=>{
+    cv.width = cv.offsetWidth;
+    cv.height = cv.offsetHeight;
+  }).observe(cv);
+}
+
+function runAnimLoop() {
+  if(rafRunning) return;
+  rafRunning = true;
+  function loop() {
+    globalT++;
+    animatedCanvases.forEach(({cv,ctx,drawFn})=>{
+      if(cv.width>0 && cv.height>0) {
+        try{ drawFn(ctx, cv.width, cv.height, globalT); } catch(e){}
+      }
+    });
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function initCanvasesForPage(p) {
+  animatedCanvases.length = 0;
+  
+  if(p==='home'){
+    registerCanvas('c-room-main',(ctx,W,H,t)=>drawRoom(ctx,W,H,PALETTES.modern,t,{showSofa:true,showPlant:true,showLight:true,showRug:true,particles:true}));
+    registerCanvas('c-room-acc',(ctx,W,H,t)=>drawStyleScene(ctx,W,H,'japandi',t));
+    registerCanvas('c-g1',(ctx,W,H,t)=>drawStyleScene(ctx,W,H,'japandi',t));
+    registerCanvas('c-g2',(ctx,W,H,t)=>drawStyleScene(ctx,W,H,'scandi',t));
+    registerCanvas('c-g3',(ctx,W,H,t)=>drawStyleScene(ctx,W,H,'contemp',t));
+    registerCanvas('c-g4',(ctx,W,H,t)=>drawStyleScene(ctx,W,H,'artdeco',t));
+    registerCanvas('c-g5',(ctx,W,H,t)=>drawStyleScene(ctx,W,H,'boho',t));
+  }
+  if(p==='about'){
+    registerCanvas('c-about-main',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'about_main',t));
+    registerCanvas('c-about-s1',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'about_s1',t));
+    registerCanvas('c-about-s2',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'about_s2',t));
+  }
+  if(p==='how'){
+    registerCanvas('c-hiw1',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'vision',t));
+    registerCanvas('c-hiw2',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'analysis',t));
+    registerCanvas('c-hiw3',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'output',t));
+  }
+  if(p==='feat'){
+    registerCanvas('c-feat1',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'feat_personalization',t));
+    registerCanvas('c-feat2',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'feat_color',t));
+    registerCanvas('c-feat3',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'feat_layout',t));
+  }
+  if(p==='res'){
+    registerCanvas('c-res1',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'res_data',t));
+    registerCanvas('c-res2',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'res_neuro',t));
+    registerCanvas('c-res3',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'res_wellbeing',t));
+  }
+  
+  if(!rafRunning) runAnimLoop();
+}
+
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    initCanvasesForPage('home');
+    runAnimLoop();
+  },200);
+});
+
+window.addEventListener('scroll', ()=>{ triggerReveals(); triggerMetrics(); });
+setTimeout(triggerReveals, 500);
+</script>
+</body>
+</html>
+        <div style="height:1px;background:linear-gradient(90deg,var(--gold),transparent);margin:2rem 0;width:80px;"></div>
+        <a href="#" class="btn-p" style="margin-top:1rem;">Experience It</a>
+      </div>
+      <div class="mani-right">
+        <p class="reveal"><strong>Interior design has long been a privilege.</strong> Reserved for those with access to expensive professionals, years of accumulated taste, and the vocabulary to articulate spatial vision.</p>
+        <p class="reveal d1">HavenCraft exists to dismantle that barrier. Through <em>intelligence-guided aesthetics</em>, we've created a platform that understands your preferences at a level most designers never reach in weeks of consultation.</p>
+        <p class="reveal d2">We are not replacing the human designer. We are creating a world where <strong>every person has a designer-level conversation partner</strong> — one that works at machine speed, never tires, and learns from millions of spatial configurations.</p>
+        <p class="reveal d3">This is <em>personalized spatial transformation</em>. This is HavenCraft.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="miss-bar">
+  <div class="miss-in">
+    <div class="miss-text reveal">
+      <div class="sec-label">Our Mission</div>
+      <h2>Architecture redefined<br>through <em>AI</em></h2>
+      <p>To make world-class interior intelligence accessible to every home, every budget, every dream.</p>
+      <ul class="vals">
+        <li>Democratizing interior design at scale</li>
+        <li>Intelligence woven into every recommendation</li>
+        <li>Beauty as a universal right, not a luxury</li>
+        <li>Human creativity, amplified by machine precision</li>
+      </ul>
+    </div>
+    <div class="miss-q reveal d2">
+      <blockquote>"Great design is not about what money can buy — it's about what intelligence can create."</blockquote>
+      <cite>— HavenCraft Design Philosophy</cite>
+    </div>
+  </div>
+</div>
+<section>
+  <div class="inner">
+    <div class="reveal"><div class="sec-label">Foundations</div><h2 class="sec-title">Three pillars of<br><em>spatial intelligence</em></h2></div>
+    <div class="pillars">
+      <div class="pillar reveal d1"><div class="p-num">01</div><h3>Aesthetic Intuition</h3><p>Pattern recognition trained on millions of curated spaces, distilling centuries of design wisdom into milliseconds of insight.</p></div>
+      <div class="pillar reveal d2"><div class="p-num">02</div><h3>Spatial Cognition</h3><p>Deep understanding of proportion, flow, and human movement — translating dimensions into lived experiences.</p></div>
+      <div class="pillar reveal d3"><div class="p-num">03</div><h3>Personal Resonance</h3><p>Learning your unique aesthetic language to ensure every design feels unmistakably, intimately yours.</p></div>
+    </div>
+    <div class="tl reveal">
+      <div class="tl-item"><div class="tl-date">2022</div><h3>The Vision</h3><p>Born from frustration with inaccessible design — a platform to democratize spatial intelligence.</p></div>
+      <div class="tl-item"><div class="tl-date">2023</div><h3>First Intelligence</h3><p>Core AI trained on curated interior datasets, achieving designer-level aesthetic judgment.</p></div>
+      <div class="tl-item"><div class="tl-date">2024</div><h3>Public Launch</h3><p>Opening HavenCraft to the world — 12,000 rooms transformed in the first quarter.</p></div>
+      <div class="tl-item"><div class="tl-date">2025</div><h3>Next Chapter</h3><p>Multi-modal understanding, real-time collaboration, and augmented reality visualization.</p></div>
+    </div>
+  </div>
+</section>
+<footer>
+  <div class="foot-in">
+    <div class="foot-brand"><a class="logo" onclick="go('home')">Haven<span>Craft</span></a><p>An orchestration of intelligence and elegance.</p></div>
+    <div class="fc"><h4>Platform</h4><ul><li><a onclick="go('how')">How It Works</a></li><li><a onclick="go('feat')">Features</a></li></ul></div>
+    <div class="fc"><h4>Company</h4><ul><li><a onclick="go('about')">About</a></li><li><a onclick="go('res')">Research</a></li></ul></div>
+    <div class="fc"><h4>Connect</h4><ul><li><a href="#">Press Kit</a></li></ul></div>
+  </div>
+  <div class="foot-btm"><p>© 2025 HavenCraft.</p><p>Spaces reimagined through computational intuition.</p></div>
+</footer>
+</div>
+
+<!-- ══════════════ HOW IT WORKS ══════════════ -->
+<div id="page-how" class="page">
+<header class="ph">
+  <div class="tag">The Process</div>
+  <h1>From <em>vision</em> to<br>realized space</h1>
+  <p>A four-step journey from raw intention to exquisitely detailed interior concept — powered by AI at every stage.</p>
+</header>
+<div class="inner">
+  <div class="hiw-imgs">
+    <div class="ic"><canvas id="c-hiw1" style="width:100%;height:100%;display:block;"></canvas><div class="ic-ov"></div><div class="ic-l">Input & Vision</div></div>
+    <div class="ic"><canvas id="c-hiw2" style="width:100%;height:100%;display:block;"></canvas><div class="ic-ov"></div><div class="ic-l">AI Analysis</div></div>
+    <div class="ic"><canvas id="c-hiw3" style="width:100%;height:100%;display:block;"></canvas><div class="ic-ov"></div><div class="ic-l">Design Output</div></div>
+  </div>
+  <div class="steps">
+    <div class="srow reveal">
+      <div class="s-idx"><div class="s-dot"></div><div class="s-nl">Step</div></div>
+      <div class="sc">
+        <span class="sc-tag">Step One</span>
+        <h3>Describe your <em>space</em></h3>
+        <p>Input room dimensions, type, and your aesthetic aspirations. Our natural language interface understands nuance — "warm and contemplative" translates directly into design parameters.</p>
+        <div class="chips"><span class="chip">Room Type</span><span class="chip">Dimensions</span><span class="chip">Style Preference</span><span class="chip">Budget</span></div>
+      </div>
+    </div>
+    <div class="srow reveal d1">
+      <div class="s-idx"><div class="s-dot"></div><div class="s-nl">Step</div></div>
+      <div class="sc">
+        <span class="sc-tag">Step Two</span>
+        <h3>Intelligence <em>analyzes</em></h3>
+        <p>The AI processes spatial parameters against a vast knowledge base of curated interiors, material relationships, and color theory principles.</p>
+      </div>
+    </div>
+    <div class="srow reveal d2">
+      <div class="s-idx"><div class="s-dot"></div><div class="s-nl">Step</div></div>
+      <div class="sc">
+        <span class="sc-tag">Step Three</span>
+        <h3>Concepts <em>materialize</em></h3>
+        <p>Detailed design recommendations emerge — furniture arrangements, color palettes, material specifications, and lighting strategies.</p>
+      </div>
+    </div>
+    <div class="srow reveal d3">
+      <div class="s-idx"><div class="s-dot"></div><div class="s-nl">Step</div></div>
+      <div class="sc">
+        <span class="sc-tag">Step Four</span>
+        <h3>Your space, <em>realized</em></h3>
+        <p>Receive a complete design document — ready to implement, shop, or share with contractors and interior professionals.</p>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:5rem;">
+    <div class="reveal"><div class="sec-label">AI Capabilities</div><h2 class="sec-title">What the intelligence <em>sees</em></h2></div>
+    <div class="ai-grid">
+      <div class="ai-card reveal d1"><span class="ai-icon">◎</span><h4>Spatial Parsing</h4><p>Interprets room geometry to optimize flow, proportion, and human-scale ergonomics.</p></div>
+      <div class="ai-card reveal d2"><span class="ai-icon">◈</span><h4>Style Synthesis</h4><p>Cross-references aesthetic preferences against curated design vocabularies.</p></div>
+      <div class="ai-card reveal d3"><span class="ai-icon">❋</span><h4>Material Logic</h4><p>Understands tactile, visual, and acoustic properties of materials in combination.</p></div>
+    </div>
+  </div>
+  <div style="margin-top:5rem;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;" class="reveal">
+    <div>
+      <div class="sec-label">Try It Now</div>
+      <h2 class="sec-title" style="font-size:2rem;">Your first design,<br><em>in 60 seconds</em></h2>
+      <p class="sec-body" style="margin-top:1rem;">Enter your space details and watch AI craft a personalized interior in real time.</p>
+    </div>
+    <div class="form-mock">
+      <div class="mock-h"><div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div><span class="mock-title">HavenCraft AI Interface</span></div>
+      <div class="mf"><label class="ml">Room Type</label><input class="mi-f" value="Living Room" readonly/></div>
+      <div class="mf"><label class="ml">Dimensions</label><input class="mi-f" value="4.5m × 6m" readonly/></div>
+      <div class="mf"><label class="ml">Style Preference</label><div class="ms"><span class="mo sel">Japandi</span><span class="mo">Modern</span><span class="mo">Boho</span><span class="mo">Deco</span></div></div>
+      <button class="msub">Generate Design ✦</button>
+    </div>
+  </div>
+</div>
+<footer>
+  <div class="foot-in">
+    <div class="foot-brand"><a class="logo" onclick="go('home')">Haven<span>Craft</span></a><p>Intelligence sculpted into living spaces.</p></div>
+    <div class="fc"><h4>Platform</h4><ul><li><a onclick="go('feat')">Features</a></li><li><a onclick="go('intel')">Intelligence</a></li></ul></div>
+    <div class="fc"><h4>Company</h4><ul><li><a onclick="go('about')">About</a></li><li><a onclick="go('res')">Research</a></li></ul></div>
+    <div class="fc"><h4>Connect</h4><ul><li><a href="#">Press Kit</a></li></ul></div>
+  </div>
+  <div class="foot-btm"><p>© 2025 HavenCraft.</p><p>Spaces reimagined through computational intuition.</p></div>
+</footer>
+</div>
+
+<!-- ══════════════ INTELLIGENCE ══════════════ -->
+<div id="page-intel" class="page">
+<header class="ph">
+  <div class="tag">Under the Hood</div>
+  <h1>The <em>intelligence</em><br>that designs</h1>
+  <p>A deep look at the machine cognition powering HavenCraft's spatial reasoning engine.</p>
+</header>
+<section class="neural-sec">
+  <canvas id="n-canvas"></canvas>
+  <div class="n-in">
+    <div class="n-text">
+      <div class="sec-label">Neural Architecture</div>
+      <h2>Trained on <em>beauty</em>,<br>reasoning in space</h2>
+      <p>HavenCraft's core model is trained on over 2 million curated interior images, design principle databases, and human aesthetic preference data.</p>
+      <p>The result is a system that doesn't just pattern-match — it understands the principles underlying great design and applies them generatively.</p>
+      <div class="metrics" style="margin-top:2rem;">
+        <div class="mrow"><span class="mlabel">Style Recognition</span><div class="mbar"><div class="mfill" style="--pct:97%"></div></div><span class="mpct">97%</span></div>
+        <div class="mrow"><span class="mlabel">Layout Optimization</span><div class="mbar"><div class="mfill" style="--pct:94%"></div></div><span class="mpct">94%</span></div>
+        <div class="mrow"><span class="mlabel">Color Harmony</span><div class="mbar"><div class="mfill" style="--pct:98%"></div></div><span class="mpct">98%</span></div>
+        <div class="mrow"><span class="mlabel">User Satisfaction</span><div class="mbar"><div class="mfill" style="--pct:96%"></div></div><span class="mpct">96%</span></div>
+      </div>
+    </div>
+    <div class="nodes">
+      <div class="node central"><div class="n-lbl">HAVEN<br>CRAFT</div></div>
+      <div class="node n1"><div class="n-lbl">Style</div></div>
+      <div class="node n2"><div class="n-lbl">Color</div></div>
+      <div class="node n3"><div class="n-lbl">Layout</div></div>
+      <div class="node n4"><div class="n-lbl">Material</div></div>
+      <div class="node n5"><div class="n-lbl">Space</div></div>
+      <div class="node n6"><div class="n-lbl">Mood</div></div>
+    </div>
+  </div>
+</section>
+<section>
+  <div class="inner">
+    <div class="reveal"><div class="sec-label">Capabilities</div><h2 class="sec-title">What it can <em>perceive</em></h2></div>
+    <div class="cap-grid">
+      <div class="card cap-card reveal d1"><span class="cap-num">01</span><span class="cap-icon">◎</span><h3>Aesthetic Classification</h3><p>Identifies and categorizes design styles across 200+ distinct aesthetic vocabularies.</p></div>
+      <div class="card cap-card reveal d2"><span class="cap-num">02</span><span class="cap-icon">⬡</span><h3>Spatial Reasoning</h3><p>Models furniture placement, traffic flow, and human ergonomics within any room geometry.</p></div>
+      <div class="card cap-card reveal d3"><span class="cap-num">03</span><span class="cap-icon">❋</span><h3>Chromatic Intelligence</h3><p>Generates harmonious color palettes respecting psychological and lighting variables.</p></div>
+      <div class="card cap-card reveal d4"><span class="cap-num">04</span><span class="cap-icon">◈</span><h3>Material Synthesis</h3><p>Understands tactile, visual, and acoustic material properties in spatial combination.</p></div>
+    </div>
+    <div class="reveal" style="margin-top:4rem;">
+      <div class="sec-label">Model Layers</div>
+      <h2 class="sec-title">Architecture<br><em>in depth</em></h2>
+    </div>
+    <div class="layers">
+      <div class="layer reveal d1"><div class="l-n">L1</div><div class="l-info"><h4>Perception Layer</h4><p>Low-level feature extraction — edges, textures, spatial relationships, color distributions.</p></div><span class="l-badge">Foundation</span></div>
+      <div class="layer reveal d2"><div class="l-n">L2</div><div class="l-info"><h4>Semantic Layer</h4><p>Object recognition, style classification, material identification across design vocabularies.</p></div><span class="l-badge">Understanding</span></div>
+      <div class="layer reveal d3"><div class="l-n">L3</div><div class="l-info"><h4>Aesthetic Layer</h4><p>Harmony evaluation, proportion judgement, emotional resonance scoring.</p></div><span class="l-badge">Taste</span></div>
+      <div class="layer reveal d4"><div class="l-n">L4</div><div class="l-info"><h4>Generation Layer</h4><p>Creative synthesis — producing novel, coherent designs from learned aesthetic principles.</p></div><span class="l-badge">Creation</span></div>
+    </div>
+  </div>
+</section>
+<footer>
+  <div class="foot-in">
+    <div class="foot-brand"><a class="logo" onclick="go('home')">Haven<span>Craft</span></a><p>Intelligence sculpted into living spaces.</p></div>
+    <div class="fc"><h4>Platform</h4><ul><li><a onclick="go('how')">How It Works</a></li><li><a onclick="go('feat')">Features</a></li></ul></div>
+    <div class="fc"><h4>Company</h4><ul><li><a onclick="go('about')">About</a></li><li><a onclick="go('res')">Research</a></li></ul></div>
+    <div class="fc"><h4>Connect</h4><ul><li><a href="#">Press Kit</a></li></ul></div>
+  </div>
+  <div class="foot-btm"><p>© 2025 HavenCraft.</p><p>Spaces reimagined through computational intuition.</p></div>
+</footer>
+</div>
+
+<!-- ══════════════ FEATURES ══════════════ -->
+<div id="page-feat" class="page">
+<header class="ph">
+  <div class="tag">Full Feature Suite</div>
+  <h1>Everything you need to<br><em>design brilliantly</em></h1>
+  <p>A complete toolkit for spatial transformation — from first inspiration to final specification.</p>
+</header>
+<section>
+  <div class="inner">
+    <div class="fh-grid">
+      <div class="card fh-card reveal"><span class="fh-icon">✦</span><h3>Style Engine</h3><p>Twelve curated design vocabularies, infinitely blendable to your unique aesthetic.</p></div>
+      <div class="card fh-card reveal d1"><span class="fh-icon">◈</span><h3>Budget Optimizer</h3><p>Every recommendation calibrated to your financial parameters without sacrificing elegance.</p></div>
+      <div class="card fh-card reveal d2"><span class="fh-icon">⬡</span><h3>Layout Planner</h3><p>Intelligent spatial reasoning that optimizes flow, proportion, and livability.</p></div>
+    </div>
+    <div class="frows">
+      <div class="frow reveal">
+        <div class="fr-text">
+          <span class="pill">Personalization</span>
+          <h3>Spaces that feel <em>unmistakably</em> yours</h3>
+          <p>Our preference learning engine builds a deep model of your aesthetic sensibility from minimal input — translating vague intuitions into precise design language.</p>
+          <ul class="bens">
+            <li>Aesthetic preference mapping across 40+ dimensions</li>
+            <li>Style vocabulary that evolves with each interaction</li>
+            <li>Cross-room coherence for holistic home design</li>
+          </ul>
+        </div>
+        <div class="fr-vis"><canvas id="c-feat1" style="width:100%;height:100%;display:block;"></canvas></div>
+      </div>
+      <div class="frow rev reveal">
+        <div class="fr-text">
+          <span class="pill">Color Intelligence</span>
+          <h3>Palettes built on <em>chromatic law</em></h3>
+          <p>Color theory meets machine precision. Every palette curated for visual coherence, psychological effect, and emotional resonance — calibrated to your space's light conditions.</p>
+          <ul class="bens">
+            <li>Mood-based palette generation</li>
+            <li>Lighting-aware color adjustment</li>
+            <li>Material-color harmony analysis</li>
+          </ul>
+        </div>
+        <div class="fr-vis"><canvas id="c-feat2" style="width:100%;height:100%;display:block;"></canvas></div>
+      </div>
+      <div class="frow reveal">
+        <div class="fr-text">
+          <span class="pill">Layout Mastery</span>
+          <h3>Rooms that <em>breathe</em> and flow</h3>
+          <p>Spatial cognition modeling human movement, sight lines, and ergonomic requirements to produce layouts that are as functional as they are beautiful.</p>
+          <ul class="bens">
+            <li>Traffic flow optimization</li>
+            <li>Focal point hierarchy</li>
+            <li>Natural light maximization</li>
+          </ul>
+        </div>
+        <div class="fr-vis"><canvas id="c-feat3" style="width:100%;height:100%;display:block;"></canvas></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="mat-sec">
+  <div class="inner">
+    <div class="reveal"><div class="sec-label">Comparison</div><h2 class="sec-title">HavenCraft vs <em>traditional</em> design</h2></div>
+    <table class="mat-table">
+      <thead><tr><th>Capability</th><th>HavenCraft AI</th><th>Traditional Designer</th><th>DIY</th></tr></thead>
+      <tbody>
+        <tr><td>Turnaround Time</td><td><span class="ck">✦ &lt;60 seconds</span></td><td><span class="da">2–6 weeks</span></td><td><span class="da">Months</span></td></tr>
+        <tr><td>Budget Optimization</td><td><span class="ck">✦ Real-time</span></td><td><span class="da">Manual</span></td><td><span class="da">Guesswork</span></td></tr>
+        <tr><td>Style Range</td><td><span class="ck">✦ 12+ styles</span></td><td><span class="da">Specialization</span></td><td><span class="da">Limited</span></td></tr>
+        <tr><td>Accessibility</td><td><span class="ck">✦ Universal</span></td><td><span class="da">Premium only</span></td><td><span class="da">Variable</span></td></tr>
+        <tr><td>Iteration Speed</td><td><span class="ck">✦ Instant</span></td><td><span class="da">Days per revision</span></td><td><span class="da">Hours</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<footer>
+  <div class="foot-in">
+    <div class="foot-brand"><a class="logo" onclick="go('home')">Haven<span>Craft</span></a><p>Intelligence sculpted into living spaces.</p></div>
+    <div class="fc"><h4>Platform</h4><ul><li><a onclick="go('how')">How It Works</a></li><li><a onclick="go('intel')">Intelligence</a></li></ul></div>
+    <div class="fc"><h4>Company</h4><ul><li><a onclick="go('about')">About</a></li><li><a onclick="go('res')">Research</a></li></ul></div>
+    <div class="fc"><h4>Connect</h4><ul><li><a href="#">Press Kit</a></li></ul></div>
+  </div>
+  <div class="foot-btm"><p>© 2025 HavenCraft.</p><p>Spaces reimagined through computational intuition.</p></div>
+</footer>
+</div>
+
+<!-- ══════════════ RESEARCH ══════════════ -->
+<div id="page-res" class="page">
+<header class="ph">
+  <div class="tag">Research & Insights</div>
+  <h1>The science of<br><em>beautiful spaces</em></h1>
+  <p>Original research into spatial psychology, aesthetic computation, and the neuroscience of interior experience.</p>
+</header>
+<div class="inner">
+  <div class="res-strip">
+    <div class="ic"><canvas id="c-res1" style="width:100%;height:100%;display:block;"></canvas><div class="ic-ov"></div></div>
+    <div class="ic"><canvas id="c-res2" style="width:100%;height:100%;display:block;"></canvas><div class="ic-ov"></div></div>
+    <div class="ic"><canvas id="c-res3" style="width:100%;height:100%;display:block;"></canvas><div class="ic-ov"></div></div>
+  </div>
+  <div class="rg">
+    <div class="card pc reveal"><div class="p-type">White Paper</div><h3>Aesthetic Preference Mapping in Neural Architectures</h3><p>How transformer models develop taste: a study of emergent aesthetic judgment in large-scale visual training.</p><div class="pm"><span>2024 · 24 pages</span></div></div>
+    <div class="card pc reveal d1"><div class="p-type">Case Study</div><h3>Spatial Wellbeing: Interior Design & Mental Health Outcomes</h3><p>Longitudinal analysis of 2,400 participants living in AI-designed versus traditionally designed spaces.</p><div class="pm"><span>2024 · 18 pages</span></div></div>
+    <div class="card pc reveal d2"><div class="p-type">Research Paper</div><h3>Color Theory in Computational Design: Beyond Harmony Rules</h3><p>Machine learning approaches to chromatic relationships that transcend classical color theory.</p><div class="pm"><span>2023 · 31 pages</span></div></div>
+    <div class="card pc reveal d3"><div class="p-type">Analysis</div><h3>The Democratization Index: AI Design Adoption Patterns</h3><p>Tracking how AI interior tools are reshaping access to professional-quality design globally.</p><div class="pm"><span>2024 · 15 pages</span></div></div>
+  </div>
+  <div class="dg" style="margin-top:3rem;">
+    <div class="dc reveal"><span class="d-icon">◎</span><h4>Spatial Psychology</h4><p>How room geometry affects cognitive performance, mood, and social behavior.</p></div>
+    <div class="dc reveal d1"><span class="d-icon">❋</span><h4>Chromatic Neuroscience</h4><p>The neurological basis of color preference and its design implications.</p></div>
+    <div class="dc reveal d2"><span class="d-icon">⬡</span><h4>Ergonomic Intelligence</h4><p>Machine modeling of human movement patterns for optimal spatial arrangement.</p></div>
+  </div>
+</div>
+<section class="find-sec">
+  <div class="inner">
+    <div class="find-grid">
+      <div>
+        <div class="sec-label reveal">Key Findings</div>
+        <h2 class="sec-title reveal">What we've<br><em>discovered</em></h2>
+        <div class="find-list">
+          <div class="fi reveal d1"><h4>78% wellbeing improvement</h4><p>Participants in AI-designed spaces reported significantly higher mood and productivity scores.</p></div>
+          <div class="fi reveal d2"><h4>3.2× faster design decisions</h4><p>AI-assisted design reduces decision fatigue and time-to-completion dramatically.</p></div>
+          <div class="fi reveal d3"><h4>94% aesthetic accuracy</h4><p>Model predictions of user preference align with actual satisfaction ratings at record levels.</p></div>
+        </div>
+      </div>
+      <div>
+        <div class="k-stat reveal">
+          <span class="big-n">2M+</span>
+          <p>Interior images in our research dataset — the largest curated aesthetic corpus ever assembled.</p>
+        </div>
+        <div class="sp reveal d1">
+          <div class="ms2"><span class="num">47</span><p>Research papers published</p></div>
+          <div class="ms2"><span class="num">8</span><p>University partnerships</p></div>
+        </div>
+        <div class="meth reveal d2">
+          <div class="ms3"><div class="n">01</div><h4>Visual AI</h4><p>Computer vision trained on curated aesthetic datasets.</p></div>
+          <div class="ms3"><div class="n">02</div><h4>Surveys</h4><p>12,000+ participant preference studies.</p></div>
+          <div class="ms3"><div class="n">03</div><h4>Biometrics</h4><p>Physiological response measurement in designed spaces.</p></div>
+          <div class="ms3"><div class="n">04</div><h4>Longitudinal</h4><p>Multi-year wellbeing tracking in AI-designed homes.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<footer>
+  <div class="foot-in">
+    <div class="foot-brand"><a class="logo" onclick="go('home')">Haven<span>Craft</span></a><p>Intelligence sculpted into living spaces.</p></div>
+    <div class="fc"><h4>Platform</h4><ul><li><a onclick="go('how')">How It Works</a></li><li><a onclick="go('feat')">Features</a></li></ul></div>
+    <div class="fc"><h4>Company</h4><ul><li><a onclick="go('about')">About</a></li><li><a onclick="go('res')">Research</a></li></ul></div>
+    <div class="fc"><h4>Connect</h4><ul><li><a href="#">Press Kit</a></li></ul></div>
+  </div>
+  <div class="foot-btm"><p>© 2025 HavenCraft.</p><p>Spaces reimagined through computational intuition.</p></div>
+</footer>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+function go(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  window.scrollTo(0,0);
+  document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
+  const link = document.querySelector(`.nav-links a[onclick*="'${p}'"]`);
+  if(link) link.classList.add('active');
+  setTimeout(()=>{initCanvasesForPage(p);triggerReveals();},100);
+}
+function toggleMob(){document.getElementById('mNav').classList.toggle('open');}
+
+// ══════════════════════════════════════════
+// CURSOR
+// ══════════════════════════════════════════
+const cur = document.getElementById('cur');
+const ring = document.getElementById('cur-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+function animCursor(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animCursor);}
+animCursor();
+
+// ══════════════════════════════════════════
+// SCROLL
+// ══════════════════════════════════════════
+const sp = document.getElementById('sp');
+const nav = document.getElementById('nav');
+window.addEventListener('scroll',()=>{
+  const pct=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100;
+  sp.style.width=pct+'%';
+  nav.classList.toggle('scrolled',window.scrollY>60);
+  triggerReveals();
+  triggerMetrics();
+});
+
+function triggerReveals(){
+  document.querySelectorAll('.reveal:not(.visible)').forEach(el=>{
+    const r=el.getBoundingClientRect();
+    if(r.top<window.innerHeight*.88) el.classList.add('visible');
+  });
+}
+function triggerMetrics(){
+  document.querySelectorAll('.mfill:not(.anim)').forEach(el=>{
+    const r=el.getBoundingClientRect();
+    if(r.top<window.innerHeight) el.classList.add('anim');
+  });
+}
+setTimeout(triggerReveals,300);
+
+// ══════════════════════════════════════════
+// COUNT-UP
+// ══════════════════════════════════════════
+function countUp(){
+  document.querySelectorAll('.cu').forEach(el=>{
+    const t=+el.dataset.t, s=el.dataset.s||'';
+    let c=0, dur=1800, step=Math.ceil(dur/(t*16));
+    const iv=setInterval(()=>{c=Math.min(c+1,t);el.textContent=c+s;if(c>=t)clearInterval(iv);},step);
+  });
+}
+setTimeout(countUp,400);
+
+// ══════════════════════════════════════════
+// HERO CANVAS — flowing particles with golden filaments
+// ══════════════════════════════════════════
+(function(){
+  const cv=document.getElementById('bg-canvas');
+  if(!cv)return;
+  const ctx=cv.getContext('2d');
+  let W,H;
+  function resize(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight;}
+  resize();window.addEventListener('resize',resize);
+  const pts=Array.from({length:80},()=>({
+    x:Math.random()*W,y:Math.random()*H,
+    vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,
+    r:Math.random()*2+1,
+    hue:Math.random()<.5?40:120,
+    a:Math.random()*.6+.2
+  }));
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<pts.length;i++){
+      for(let j=i+1;j<pts.length;j++){
+        const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<130){
+          ctx.beginPath();
+          ctx.moveTo(pts[i].x,pts[i].y);
+          ctx.lineTo(pts[j].x,pts[j].y);
+          const a=(1-d/130)*.12;
+          ctx.strokeStyle=`rgba(160,120,32,${a})`;
+          ctx.lineWidth=.8;
+          ctx.stroke();
+        }
+      }
+    }
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>W)p.vx*=-1;
+      if(p.y<0||p.y>H)p.vy*=-1;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue},60%,40%,${p.a})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ══════════════════════════════════════════
+// NEURAL CANVAS — branching lines
+// ══════════════════════════════════════════
+(function(){
+  const cv=document.getElementById('n-canvas');
+  if(!cv)return;
+  const ctx=cv.getContext('2d');
+  let W,H;
+  function resize(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight;}
+  resize();window.addEventListener('resize',resize);
+  const nodes=Array.from({length:60},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3}));
+  let t=0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);t++;
+    nodes.forEach(n=>{
+      n.x+=n.vx;n.y+=n.vy;
+      if(n.x<0||n.x>W)n.vx*=-1;
+      if(n.y<0||n.y>H)n.vy*=-1;
+    });
+    for(let i=0;i<nodes.length;i++){
+      for(let j=i+1;j<nodes.length;j++){
+        const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<100){
+          const pulse=(Math.sin(t*.02+i*.3)*.5+.5);
+          ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);
+          ctx.strokeStyle=`rgba(100,150,70,${(1-d/100)*.15*pulse})`;
+          ctx.lineWidth=.6;ctx.stroke();
+        }
+      }
+    }
+    nodes.forEach((n,i)=>{
+      ctx.beginPath();ctx.arc(n.x,n.y,1.5,0,Math.PI*2);
+      ctx.fillStyle=`rgba(120,170,80,${.3+.2*Math.sin(t*.03+i)})`;ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ══════════════════════════════════════════
+// CANVAS PAINTERS — Aesthetic room/scene generators
+// ══════════════════════════════════════════
+
+const PALETTES = {
+  japandi:   {bg:'#E8E2D8',wall:'#D4CCBA',floor:'#B8A882',accent:'#5A4A2A',soft:'#8A7A5A',muted:'rgba(90,74,42,0.15)'},
+  scandi:    {bg:'#F0EDE8',wall:'#E8E0D0',floor:'#C8B898',accent:'#7A9070',soft:'#A8B8A0',muted:'rgba(122,144,112,0.15)'},
+  contemp:   {bg:'#E2E2E0',wall:'#D0CEC8',floor:'#9A9888',accent:'#6A8090',soft:'#909EA8',muted:'rgba(106,128,144,0.15)'},
+  artdeco:   {bg:'#2A1F0E',wall:'#1A1408',floor:'#3A2E18',accent:'#C49A3A',soft:'#A07820',muted:'rgba(196,154,58,0.2)'},
+  boho:      {bg:'#E8D8C8',wall:'#D8C4A8',floor:'#C4A878',accent:'#B05030',soft:'#C87848',muted:'rgba(176,80,48,0.15)'},
+  modern:    {bg:'#F4F0EC',wall:'#EAE4DA',floor:'#C8BEA8',accent:'#A07820',soft:'#B89840',muted:'rgba(160,120,32,0.15)'},
+  material:  {bg:'#EEE8E0',wall:'#E0D8CA',floor:'#C0B49A',accent:'#7A6040',soft:'#9A8060',muted:'rgba(122,96,64,0.15)'},
+  neural:    {bg:'#F0EEE8',wall:'#E8E2D8',floor:'#D0C8B8',accent:'#8A7050',soft:'#A89070',muted:'rgba(138,112,80,0.15)'},
+};
+
+function drawRoom(ctx, W, H, pal, t, opts={}) {
+  const {showSofa=true,showPlant=true,showLight=true,showRug=true,particles=false,grid=false,waveform=false} = opts;
+  
+  ctx.fillStyle = pal.bg;
+  ctx.fillRect(0,0,W,H);
+  
+  for(let i=0;i<200;i++){
+    ctx.fillStyle=`rgba(0,0,0,${Math.random()*.025})`;
+    ctx.fillRect(Math.random()*W,Math.random()*H,Math.random()*3+1,Math.random()*3+1);
+  }
+
+  if(grid) {
+    ctx.strokeStyle=`rgba(160,120,32,0.07)`;
+    ctx.lineWidth=.5;
+    for(let x=0;x<W;x+=20){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<H;y+=20){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  }
+
+  const fy = H * 0.55;
+  const grad_floor = ctx.createLinearGradient(0,fy,0,H);
+  grad_floor.addColorStop(0,pal.floor);
+  grad_floor.addColorStop(1,shadeColor(pal.floor,-20));
+  ctx.fillStyle=grad_floor;
+  ctx.beginPath();ctx.moveTo(0,fy);ctx.lineTo(W,fy);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();ctx.fill();
+  
+  ctx.strokeStyle=`rgba(0,0,0,0.06)`;ctx.lineWidth=.8;
+  for(let y=fy+20;y<H;y+=22){
+    ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
+  }
+
+  const wall_grad = ctx.createLinearGradient(0,0,W,0);
+  wall_grad.addColorStop(0,shadeColor(pal.wall,-8));
+  wall_grad.addColorStop(0.5,pal.wall);
+  wall_grad.addColorStop(1,shadeColor(pal.wall,-8));
+  ctx.fillStyle=wall_grad;
+  ctx.fillRect(0,0,W,fy);
+
+  ctx.fillStyle=shadeColor(pal.wall,-15);
+  ctx.fillRect(0,fy-6,W,6);
+
+  const sw=ctx.createLinearGradient(0,0,W*0.12,0);
+  sw.addColorStop(0,'rgba(0,0,0,0.08)');sw.addColorStop(1,'transparent');
+  ctx.fillStyle=sw;ctx.fillRect(0,0,W*0.12,H);
+
+  const sw2=ctx.createLinearGradient(W,0,W*0.88,0);
+  sw2.addColorStop(0,'rgba(0,0,0,0.08)');sw2.addColorStop(1,'transparent');
+  ctx.fillStyle=sw2;ctx.fillRect(W*0.88,0,W*0.12,H);
+
+  const wx=W*.32, wy=H*.08, ww=W*.36, wh=H*.36;
+  const dayLight = ctx.createRadialGradient(wx+ww/2,wy+wh/2,wh*.1,wx+ww/2,wy,wh*1.4);
+  dayLight.addColorStop(0,'rgba(255,250,220,0.6)');
+  dayLight.addColorStop(1,'rgba(255,250,220,0)');
+  ctx.fillStyle=dayLight;ctx.fillRect(0,0,W,fy);
+  
+  ctx.fillStyle=shadeColor(pal.wall,15);
+  ctx.fillRect(wx-4,wy-4,ww+8,wh+8);
+  ctx.fillStyle='rgba(200,230,255,0.4)';
+  ctx.fillRect(wx,wy,ww,wh);
+  ctx.strokeStyle=shadeColor(pal.wall,8);ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(wx+ww/2,wy);ctx.lineTo(wx+ww/2,wy+wh);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(wx,wy+wh/2);ctx.lineTo(wx+ww,wy+wh/2);ctx.stroke();
+  const shine=ctx.createLinearGradient(wx,wy,wx+ww*.5,wy+wh*.5);
+  shine.addColorStop(0,'rgba(255,255,255,0.15)');shine.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=shine;ctx.fillRect(wx,wy,ww,wh);
+
+  if(showRug){
+    const rx=W*.15, ry=fy+H*.12, rw=W*.7, rh=H*.22;
+    ctx.fillStyle=pal.muted;
+    ctx.save();
+    roundRect(ctx,rx,ry,rw,rh,8);ctx.fill();
+    ctx.strokeStyle=`rgba(0,0,0,0.08)`;ctx.lineWidth=2;
+    ctx.save();roundRect(ctx,rx+8,ry+8,rw-16,rh-16,4);ctx.stroke();ctx.restore();
+    ctx.restore();
+  }
+
+  if(showSofa){
+    const sx=W*.1, sy=fy+H*.05, sw3=W*.55, sh=H*.22;
+    const sg=ctx.createLinearGradient(sx,sy,sx,sy+sh);
+    sg.addColorStop(0,shadeColor(pal.soft,10));sg.addColorStop(1,shadeColor(pal.soft,-20));
+    ctx.fillStyle=sg;
+    ctx.save();roundRect(ctx,sx,sy+sh*.15,sw3,sh*.85,6);ctx.fill();ctx.restore();
+    ctx.fillStyle=shadeColor(pal.soft,5);
+    ctx.save();roundRect(ctx,sx,sy,sw3,sh*.25,4);ctx.fill();ctx.restore();
+    const nc=3, cw=(sw3-16)/(nc+.5);
+    for(let i=0;i<nc;i++){
+      const cx2=sx+8+i*(cw+6), cy2=sy+sh*.2;
+      ctx.fillStyle=shadeColor(pal.soft,8);
+      ctx.save();roundRect(ctx,cx2,cy2,cw,sh*.6,4);ctx.fill();ctx.restore();
+      ctx.strokeStyle='rgba(0,0,0,0.06)';ctx.lineWidth=1;
+      ctx.save();roundRect(ctx,cx2+4,cy2+4,cw-8,sh*.6-8,2);ctx.stroke();ctx.restore();
+    }
+    ctx.fillStyle=shadeColor(pal.accent,0);
+    ctx.fillRect(sx+10,sy+sh,8,H*.05);ctx.fillRect(sx+sw3-18,sy+sh,8,H*.05);
+  }
+
+  const tx=W*.7, ty=fy+H*.08;
+  ctx.fillStyle=shadeColor(pal.accent,-10);
+  roundRect(ctx,tx,ty,W*.12,H*.04,3);ctx.fill();
+  ctx.fillStyle=shadeColor(pal.accent,-20);
+  ctx.fillRect(tx+W*.025,ty+H*.04,W*.004,H*.12);
+  ctx.fillRect(tx+W*.09,ty+H*.04,W*.004,H*.12);
+
+  if(showLight){
+    const lx=tx+W*.06, ly=ty-H*.22;
+    const lh=H*.2;
+    ctx.fillStyle=`rgba(255,240,200,0.9)`;
+    ctx.beginPath();ctx.moveTo(lx-W*.04,ly+lh*.4);ctx.lineTo(lx+W*.04,ly+lh*.4);ctx.lineTo(lx+W*.025,ly);ctx.lineTo(lx-W*.025,ly);ctx.closePath();ctx.fill();
+    if(t) {
+      const lg=ctx.createRadialGradient(lx,ly+lh*.5,0,lx,ly+lh*.5,W*.12);
+      lg.addColorStop(0,`rgba(255,230,150,${.2+.05*Math.sin(t*.03)})`);
+      lg.addColorStop(1,'rgba(255,230,150,0)');
+      ctx.fillStyle=lg;ctx.beginPath();ctx.arc(lx,ly+lh*.5,W*.12,0,Math.PI*2);ctx.fill();
+    }
+    ctx.strokeStyle=shadeColor(pal.accent,-10);ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(lx,ly+lh*.4);ctx.lineTo(lx,ty);ctx.stroke();
+    ctx.fillStyle=shadeColor(pal.accent,-10);
+    ctx.save();roundRect(ctx,lx-W*.025,ty-H*.02,W*.05,H*.02,2);ctx.fill();ctx.restore();
+  }
+
+  if(showPlant){
+    const px=W*.84, py=fy+H*.04;
+    ctx.fillStyle=shadeColor(pal.accent,10);
+    ctx.beginPath();ctx.moveTo(px-W*.028,py+H*.1);ctx.lineTo(px+W*.028,py+H*.1);ctx.lineTo(px+W*.022,py+H*.18);ctx.lineTo(px-W*.022,py+H*.18);ctx.closePath();ctx.fill();
+    const leafCols=['rgba(60,100,40,0.8)','rgba(80,130,50,0.7)','rgba(50,90,35,0.9)'];
+    for(let i=0;i<7;i++){
+      const ang=-Math.PI*.3+i*Math.PI*.13+ (t?.005*Math.sin(t*.02+i):.0);
+      const len=H*.15+i*H*.012;
+      ctx.strokeStyle=leafCols[i%3];ctx.lineWidth=3-i*.15;
+      ctx.beginPath();
+      ctx.moveTo(px,py);
+      ctx.bezierCurveTo(
+        px+Math.cos(ang-0.3)*len*.5, py+Math.sin(ang-0.3)*len*.5,
+        px+Math.cos(ang+0.3)*len*.8, py+Math.sin(ang+0.3)*len*.8,
+        px+Math.cos(ang)*len, py+Math.sin(ang)*len
+      );
+      ctx.stroke();
+    }
+  }
+
+  if(waveform&&t){
+    ctx.strokeStyle=`rgba(160,120,32,0.4)`;ctx.lineWidth=1.5;
+    ctx.beginPath();
+    for(let x=0;x<W;x+=2){
+      const y2=H*.12+Math.sin(x*.04+t*.05)*H*.04+Math.sin(x*.08+t*.03)*H*.02;
+      x===0?ctx.moveTo(x,y2):ctx.lineTo(x,y2);
+    }
+    ctx.stroke();
+  }
+
+  if(particles&&t){
+    for(let i=0;i<12;i++){
+      const px2=(Math.sin(t*.008+i*2.4)*W*.45+W*.5);
+      const py2=(Math.cos(t*.006+i*1.8)*H*.3+fy*.3);
+      const a=(.5+.5*Math.sin(t*.04+i))*.3;
+      ctx.beginPath();ctx.arc(px2,py2,1.5,0,Math.PI*2);
+      ctx.fillStyle=`rgba(160,120,32,${a})`;ctx.fill();
+    }
+  }
+}
+
+function drawStyleScene(ctx, W, H, style, t) {
+  const scenes = {
+    japandi: ()=>{
+      drawRoom(ctx,W,H,PALETTES.japandi,t,{showSofa:true,showPlant:true,showLight:true,showRug:true});
+      ctx.strokeStyle='rgba(90,74,42,0.12)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(W*.5,H*.28,H*.18,0,Math.PI*2);ctx.stroke();
+    },
+    scandi: ()=>{
+      drawRoom(ctx,W,H,PALETTES.scandi,t,{showSofa:true,showPlant:true,showLight:true,showRug:false});
+    },
+    contemp: ()=>{
+      drawRoom(ctx,W,H,PALETTES.contemp,t,{showSofa:true,showPlant:false,showLight:true,showRug:true,grid:true});
+    },
+    artdeco: ()=>{
+      drawRoom(ctx,W,H,PALETTES.artdeco,t,{showSofa:false,showPlant:false,showLight:true,showRug:true});
+      ctx.strokeStyle='rgba(196,154,58,0.25)';ctx.lineWidth=1;
+      const cx2=W*.5,cy2=H*.3;
+      for(let r=20;r<H*.5;r+=30){
+        ctx.beginPath();ctx.arc(cx2,cy2,r,0,Math.PI*2);ctx.stroke();
+      }
+      for(let a=0;a<Math.PI*2;a+=Math.PI/8){
+        ctx.beginPath();ctx.moveTo(cx2,cy2);
+        ctx.lineTo(cx2+Math.cos(a)*H*.5,cy2+Math.sin(a)*H*.5);ctx.stroke();
+      }
+    },
+    boho: ()=>{
+      drawRoom(ctx,W,H,PALETTES.boho,t,{showSofa:true,showPlant:true,showLight:false,showRug:true});
+      for(let i=0;i<8;i++){
+        const bx=W*.2+i*W*.08, by=H*.05+Math.sin(i*1.4)*H*.04;
+        ctx.fillStyle='rgba(176,80,48,0.15)';
+        ctx.beginPath();ctx.arc(bx,by+(t?Math.sin(t*.02+i)*.003*H:0),4,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='rgba(176,80,48,0.1)';ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(bx,0);ctx.lineTo(bx,by);ctx.stroke();
+      }
+    },
+  };
+  if(scenes[style]) scenes[style]();
+}
+
+function drawAnalytical(ctx, W, H, theme, t) {
+  const themes = {
+    vision: ()=>{
+      ctx.fillStyle='#1A1408';ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(160,120,32,0.12)';ctx.lineWidth=.5;
+      for(let x=0;x<W;x+=20){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+      for(let y=0;y<H;y+=20){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+      const sy=((t*.8)%H);
+      const sg=ctx.createLinearGradient(0,sy-20,0,sy+20);
+      sg.addColorStop(0,'rgba(160,120,32,0)');sg.addColorStop(.5,'rgba(160,120,32,0.3)');sg.addColorStop(1,'rgba(160,120,32,0)');
+      ctx.fillStyle=sg;ctx.fillRect(0,sy-20,W,40);
+      for(let i=0;i<15;i++){
+        const nx=W*.1+((i*W*.078+t*.2)%(W*.85));
+        const ny=H*.2+Math.sin(i*1.7+t*.02)*H*.3;
+        ctx.fillStyle=`rgba(196,154,58,${.5+.3*Math.sin(t*.05+i)})`;
+        ctx.beginPath();ctx.arc(nx,ny,2+Math.sin(t*.04+i)*1,0,Math.PI*2);ctx.fill();
+        if(i>0){
+          const px3=(((i-1)*W*.078+t*.2)%(W*.85))+W*.1;
+          const py3=H*.2+Math.sin((i-1)*1.7+t*.02)*H*.3;
+          ctx.strokeStyle='rgba(196,154,58,0.2)';ctx.lineWidth=.8;
+          ctx.beginPath();ctx.moveTo(px3,py3);ctx.lineTo(nx,ny);ctx.stroke();
+        }
+      }
+      ctx.fillStyle='rgba(196,154,58,0.5)';ctx.font='9px monospace';
+      ctx.fillText('SPATIAL ANALYSIS',12,H-14);
+    },
+    analysis: ()=>{
+      ctx.fillStyle='#0E1814';ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(80,160,100,0.6)';ctx.lineWidth=1.5;
+      ctx.beginPath();
+      for(let x=0;x<W;x+=1){
+        const y2=H*.5+Math.sin(x*.05+t*.04)*H*.2+Math.sin(x*.12+t*.03)*H*.08+Math.sin(x*.03+t*.06)*H*.1;
+        x===0?ctx.moveTo(x,y2):ctx.lineTo(x,y2);
+      }
+      ctx.stroke();
+      ctx.strokeStyle='rgba(160,120,32,0.3)';ctx.lineWidth=1;
+      ctx.beginPath();
+      for(let x=0;x<W;x+=1){
+        const y2=H*.5+Math.sin(x*.08+t*.06)*H*.15+Math.cos(x*.04+t*.02)*H*.05;
+        x===0?ctx.moveTo(x,y2):ctx.lineTo(x,y2);
+      }
+      ctx.stroke();
+      const pd_x=W*.5, pd_y=H*.5+Math.sin(W*.025+t*.04)*H*.2;
+      const pg=ctx.createRadialGradient(pd_x,pd_y,0,pd_x,pd_y,20+5*Math.sin(t*.05));
+      pg.addColorStop(0,'rgba(80,160,100,0.8)');pg.addColorStop(1,'rgba(80,160,100,0)');
+      ctx.fillStyle=pg;ctx.beginPath();ctx.arc(pd_x,pd_y,20+5*Math.sin(t*.05),0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(80,160,100,0.5)';ctx.font='9px monospace';ctx.fillText('AI PROCESSING',12,H-14);
+    },
+    output: ()=>{
+      drawRoom(ctx,W,H,PALETTES.modern,t,{showSofa:true,showPlant:true,showLight:true,showRug:true,particles:true});
+      const og=ctx.createLinearGradient(0,H*.7,0,H);
+      og.addColorStop(0,'rgba(245,240,234,0)');og.addColorStop(1,'rgba(245,240,234,0.5)');
+      ctx.fillStyle=og;ctx.fillRect(0,H*.7,W,H*.3);
+    },
+    about_main: ()=>{
+      ctx.fillStyle='#2A1F0E';ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(196,154,58,0.12)';ctx.lineWidth=.5;
+      for(let x=0;x<W;x+=16){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+      for(let y=0;y<H;y+=16){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+      ctx.strokeStyle='rgba(196,154,58,0.5)';ctx.lineWidth=1.5;
+      const rooms=[
+        [W*.1,H*.15,W*.5,H*.5],[W*.62,H*.15,W*.28,H*.3],[W*.62,H*.5,W*.28,H*.24],
+        [W*.1,H*.68,W*.38,H*.2],[W*.5,H*.68,W*.4,H*.2]
+      ];
+      rooms.forEach(([x,y,w,h])=>{ctx.strokeRect(x,y,w,h);});
+      const cx3=W*.85,cy3=H*.2,cr=H*.1;
+      ctx.strokeStyle='rgba(196,154,58,0.4)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(cx3,cy3,cr,0,Math.PI*2);ctx.stroke();
+      for(let a=0;a<Math.PI*2;a+=Math.PI/4){
+        const aa=a+(t*.005);
+        ctx.beginPath();ctx.moveTo(cx3,cy3);
+        ctx.lineTo(cx3+Math.cos(aa)*cr,cy3+Math.sin(aa)*cr);ctx.stroke();
+      }
+      ctx.fillStyle='rgba(196,154,58,0.35)';ctx.font='9px monospace';
+      ctx.fillText('FLOOR PLAN',W*.1,H*.1);
+    },
+    about_s1: ()=>{
+      ctx.fillStyle='#F5F0EA';ctx.fillRect(0,0,W,H);
+      const cols=['#A07820','#527A38','#C49A3A','#3A5A2A','#8B6B3A','#D4C8A8','#7BA85A','#2A3D1A'];
+      cols.forEach((c,i)=>{
+        const sw2=W/cols.length;
+        const wave=Math.sin(t*.03+i*.8)*(H*.05);
+        ctx.fillStyle=c;
+        ctx.fillRect(i*sw2,wave,sw2+1,H-wave);
+        const hg=ctx.createLinearGradient(i*sw2,0,(i+1)*sw2,0);
+        hg.addColorStop(0,'rgba(255,255,255,0.15)');hg.addColorStop(1,'rgba(255,255,255,0)');
+        ctx.fillStyle=hg;ctx.fillRect(i*sw2,wave,sw2*.5,H-wave);
+      });
+      ctx.fillStyle='rgba(245,240,234,0.7)';ctx.font='bold 11px serif';
+      ctx.fillText('CHROMATIC SYSTEM',12,H-12);
+    },
+    about_s2: ()=>{
+      ctx.fillStyle='#EBE0CF';ctx.fillRect(0,0,W,H);
+      const mats=[
+        {c:'#B8A882',y:0,h:H*.35,label:'Oak Wood'},
+        {c:'#D0C8B8',y:H*.35,h:H*.2,label:'Linen'},
+        {c:'#8A7A5A',y:H*.55,h:H*.2,label:'Leather'},
+        {c:'#C0B498',y:H*.75,h:H*.25,label:'Travertine'},
+      ];
+      mats.forEach(m=>{
+        ctx.fillStyle=m.c;ctx.fillRect(0,m.y,W,m.h);
+        ctx.strokeStyle='rgba(0,0,0,0.05)';ctx.lineWidth=.8;
+        for(let i=0;i<8;i++){
+          ctx.beginPath();
+          ctx.moveTo(Math.random()*W*.3,m.y+m.h*.1+Math.random()*m.h*.8);
+          ctx.lineTo(W,m.y+m.h*.1+Math.random()*m.h*.8);ctx.stroke();
+        }
+        ctx.fillStyle='rgba(245,240,234,0.5)';ctx.font='9px serif';
+        ctx.fillText(m.label,10,m.y+m.h*.6);
+      });
+    },
+    feat_personalization: ()=>{
+      ctx.fillStyle='#F4F0EC';ctx.fillRect(0,0,W,H);
+      const cx4=W*.5,cy4=H*.5,r=Math.min(W,H)*.38;
+      const dims=['Style','Color','Light','Texture','Flow','Scale'];
+      const vals=[.9,.75,.85,.7,.95,.8];
+      for(let ring2=1;ring2<=4;ring2++){
+        ctx.strokeStyle='rgba(160,120,32,0.1)';ctx.lineWidth=.8;ctx.beginPath();
+        dims.forEach((_,i)=>{
+          const a=i/dims.length*Math.PI*2-Math.PI/2;
+          const rr=r*ring2/4;
+          i===0?ctx.moveTo(cx4+Math.cos(a)*rr,cy4+Math.sin(a)*rr):ctx.lineTo(cx4+Math.cos(a)*rr,cy4+Math.sin(a)*rr);
+        });ctx.closePath();ctx.stroke();
+      }
+      dims.forEach((_,i)=>{
+        const a=i/dims.length*Math.PI*2-Math.PI/2;
+        ctx.strokeStyle='rgba(160,120,32,0.15)';ctx.lineWidth=.8;
+        ctx.beginPath();ctx.moveTo(cx4,cy4);ctx.lineTo(cx4+Math.cos(a)*r,cy4+Math.sin(a)*r);ctx.stroke();
+        ctx.fillStyle='rgba(42,31,14,0.4)';ctx.font='9px serif';
+        ctx.fillText(dims[i],cx4+Math.cos(a)*(r+14)-10,cy4+Math.sin(a)*(r+14)+4);
+      });
+      ctx.fillStyle='rgba(160,120,32,0.15)';ctx.strokeStyle='rgba(160,120,32,0.6)';ctx.lineWidth=1.5;
+      ctx.beginPath();
+      dims.forEach((_,i)=>{
+        const a=i/dims.length*Math.PI*2-Math.PI/2;
+        const vr=vals[i]*r;
+        i===0?ctx.moveTo(cx4+Math.cos(a)*vr,cy4+Math.sin(a)*vr):ctx.lineTo(cx4+Math.cos(a)*vr,cy4+Math.sin(a)*vr);
+      });ctx.closePath();ctx.fill();ctx.stroke();
+      dims.forEach((_,i)=>{
+        const a=i/dims.length*Math.PI*2-Math.PI/2;
+        const vr=vals[i]*r;
+        ctx.fillStyle='rgba(160,120,32,0.8)';ctx.beginPath();
+        ctx.arc(cx4+Math.cos(a)*vr,cy4+Math.sin(a)*vr,3,0,Math.PI*2);ctx.fill();
+      });
+    },
+    feat_color: ()=>{
+      ctx.fillStyle='#F4F0EC';ctx.fillRect(0,0,W,H);
+      const cx5=W*.5,cy5=H*.5,r2=Math.min(W,H)*.38;
+      for(let a=0;a<360;a+=1){
+        const ra=a*Math.PI/180;
+        const g2=ctx.createRadialGradient(cx5,cy5,r2*.3,cx5,cy5,r2);
+        g2.addColorStop(0,`hsla(${a},60%,75%,0.9)`);g2.addColorStop(1,`hsla(${a},70%,50%,0.8)`);
+        ctx.fillStyle=g2;ctx.beginPath();
+        ctx.moveTo(cx5,cy5);ctx.arc(cx5,cy5,r2,ra,ra+Math.PI/180*1.5);ctx.closePath();ctx.fill();
+      }
+      ctx.fillStyle='rgba(245,240,234,0.9)';ctx.beginPath();ctx.arc(cx5,cy5,r2*.3,0,Math.PI*2);ctx.fill();
+      const sa=(t*.01)%(Math.PI*2);
+      const sr=r2*.65;
+      ctx.fillStyle='rgba(255,255,255,0.9)';ctx.strokeStyle='rgba(42,31,14,0.5)';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.arc(cx5+Math.cos(sa)*sr,cy5+Math.sin(sa)*sr,7,0,Math.PI*2);ctx.fill();ctx.stroke();
+    },
+    feat_layout: ()=>{
+      ctx.fillStyle='#1A1408';ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(196,154,58,0.6)';ctx.lineWidth=1.5;
+      const frooms=[
+        [W*.05,H*.1,W*.45,H*.55],[W*.52,H*.1,W*.43,H*.3],[W*.52,H*.44,W*.43,H*.21],
+        [W*.05,H*.68,W*.28,H*.26],[W*.36,H*.68,W*.59,H*.26]
+      ];
+      frooms.forEach(([x,y,w,h],i)=>{
+        const prog=Math.min(1,(t*2-i*12)/40);
+        if(prog<=0)return;
+        ctx.strokeStyle=`rgba(196,154,58,${.3+.3*Math.sin(t*.04+i)})`;
+        ctx.strokeRect(x,y,w*prog,h);
+      });
+      const dots=[[W*.25,H*.38],[W*.65,H*.25],[W*.65,H*.55],[W*.2,H*.8],[W*.6,H*.8]];
+      dots.forEach((d,i)=>{
+        if(t<i*8)return;
+        const a=Math.min(1,(t-i*8)/15);
+        ctx.fillStyle=`rgba(196,154,58,${a*.5})`;
+        ctx.beginPath();ctx.arc(d[0],d[1],5,0,Math.PI*2);ctx.fill();
+      });
+      ctx.fillStyle='rgba(196,154,58,0.4)';ctx.font='9px monospace';ctx.fillText('LAYOUT ENGINE',12,H-12);
+    },
+    res_data: ()=>{
+      ctx.fillStyle='#F5F0EA';ctx.fillRect(0,0,W,H);
+      const bars=[.6,.8,.95,.7,.85,.9,.75];
+      const bw=W/(bars.length*1.6), gap=(W-bars.length*bw)/(bars.length+1);
+      bars.forEach((v,i)=>{
+        const x=gap+i*(bw+gap), bh=H*.6*v, y=H*.9-bh;
+        const bg=ctx.createLinearGradient(x,y,x,H*.9);
+        bg.addColorStop(0,`rgba(160,120,32,${.5+.3*Math.sin(t*.04+i)})`);
+        bg.addColorStop(1,'rgba(160,120,32,0.2)');
+        ctx.fillStyle=bg;
+        ctx.save();roundRect(ctx,x,y,bw,bh,3);ctx.fill();ctx.restore();
+      });
+      ctx.fillStyle='rgba(42,31,14,0.3)';ctx.fillRect(0,H*.9,W,1);
+      ctx.fillStyle='rgba(42,31,14,0.4)';ctx.font='9px serif';ctx.fillText('RESEARCH DATA',12,H-10);
+    },
+    res_neuro: ()=>{
+      ctx.fillStyle='#0E1010';ctx.fillRect(0,0,W,H);
+      const waves=[
+        {y:H*.25,a:H*.08,f:.05,c:'rgba(80,200,130,0.5)',lbl:'Alpha'},
+        {y:H*.5,a:H*.05,f:.12,c:'rgba(100,160,200,0.5)',lbl:'Beta'},
+        {y:H*.75,a:H*.1,f:.03,c:'rgba(200,120,80,0.5)',lbl:'Theta'},
+      ];
+      waves.forEach(w=>{
+        ctx.strokeStyle=w.c;ctx.lineWidth=1.5;ctx.beginPath();
+        for(let x=0;x<W;x+=1){
+          const y2=w.y+Math.sin(x*w.f+t*.04)*w.a;
+          x===0?ctx.moveTo(x,y2):ctx.lineTo(x,y2);
+        }ctx.stroke();
+        ctx.fillStyle=w.c;ctx.font='8px monospace';ctx.fillText(w.lbl,4,w.y-4);
+      });
+      ctx.fillStyle='rgba(100,200,150,0.3)';ctx.font='9px monospace';ctx.fillText('NEURO RESPONSE',12,H-10);
+    },
+    res_wellbeing: ()=>{
+      ctx.fillStyle='#F5F0EA';ctx.fillRect(0,0,W,H);
+      ctx.fillStyle='rgba(200,180,150,0.4)';ctx.fillRect(0,0,W*.5,H);
+      ctx.fillStyle='rgba(120,170,100,0.25)';ctx.fillRect(W*.5,0,W*.5,H);
+      ctx.strokeStyle='rgba(160,120,32,0.3)';ctx.lineWidth=1;
+      ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(W*.5,0);ctx.lineTo(W*.5,H);ctx.stroke();ctx.setLineDash([]);
+      [[W*.25,H*.5,'Before',0.35],[W*.75,H*.5,'After',0.78]].forEach(([x,y,lbl,p])=>{
+        const r3=Math.min(W,H)*.22;
+        ctx.strokeStyle='rgba(200,180,150,0.2)';ctx.lineWidth=8;
+        ctx.beginPath();ctx.arc(x,y,r3,-Math.PI/2,Math.PI*2-Math.PI/2);ctx.stroke();
+        ctx.strokeStyle=p>.6?'rgba(100,160,70,0.8)':'rgba(160,120,32,0.6)';ctx.lineWidth=8;
+        ctx.beginPath();ctx.arc(x,y,r3,-Math.PI/2,-Math.PI/2+Math.PI*2*p*(Math.min(1,t/60)));ctx.stroke();
+        ctx.fillStyle='rgba(42,31,14,0.6)';ctx.font='bold 11px serif';
+        ctx.textAlign='center';ctx.fillText(Math.round(p*100)+'%',x,y+4);
+        ctx.font='8px serif';ctx.fillText(lbl,x,y+H*.2);ctx.textAlign='left';
+      });
+    },
+  };
+  if(themes[theme]) themes[theme]();
+}
+
+function shadeColor(c, amt) {
+  const hex=c.replace('#','');
+  const r=Math.max(0,Math.min(255,parseInt(hex.substr(0,2),16)+amt));
+  const g=Math.max(0,Math.min(255,parseInt(hex.substr(2,2),16)+amt));
+  const b=Math.max(0,Math.min(255,parseInt(hex.substr(4,2),16)+amt));
+  return `rgb(${r},${g},${b})`;
+}
+function roundRect(ctx,x,y,w,h,r) {
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();
+}
+
+const animatedCanvases = [];
+let rafRunning = false;
+let globalT = 0;
+
+function registerCanvas(id, drawFn) {
+  const cv = document.getElementById(id);
+  if(!cv) return;
+  const rect = cv.getBoundingClientRect();
+  cv.width = rect.width || cv.offsetWidth || 400;
+  cv.height = rect.height || cv.offsetHeight || 300;
+  const ctx = cv.getContext('2d');
+  animatedCanvases.push({cv, ctx, drawFn});
+  
+  new ResizeObserver(()=>{
+    cv.width = cv.offsetWidth;
+    cv.height = cv.offsetHeight;
+  }).observe(cv);
+}
+
+function runAnimLoop() {
+  if(rafRunning) return;
+  rafRunning = true;
+  function loop() {
+    globalT++;
+    animatedCanvases.forEach(({cv,ctx,drawFn})=>{
+      if(cv.width>0 && cv.height>0) {
+        try{ drawFn(ctx, cv.width, cv.height, globalT); } catch(e){}
+      }
+    });
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function initCanvasesForPage(p) {
+  animatedCanvases.length = 0;
+  
+  if(p==='home'){
+    registerCanvas('c-room-main',(ctx,W,H,t)=>drawRoom(ctx,W,H,PALETTES.modern,t,{showSofa:true,showPlant:true,showLight:true,showRug:true,particles:true}));
+    registerCanvas('c-room-acc',(ctx,W,H,t)=>drawStyleScene(ctx,W,H,'japandi',t));
+    registerCanvas('c-g1',(ctx,W,H,t)=>drawStyleScene(ctx,W,H,'japandi',t));
+    registerCanvas('c-g2',(ctx,W,H,t)=>drawStyleScene(ctx,W,H,'scandi',t));
+    registerCanvas('c-g3',(ctx,W,H,t)=>drawStyleScene(ctx,W,H,'contemp',t));
+    registerCanvas('c-g4',(ctx,W,H,t)=>drawStyleScene(ctx,W,H,'artdeco',t));
+    registerCanvas('c-g5',(ctx,W,H,t)=>drawStyleScene(ctx,W,H,'boho',t));
+  }
+  if(p==='about'){
+    registerCanvas('c-about-main',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'about_main',t));
+    registerCanvas('c-about-s1',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'about_s1',t));
+    registerCanvas('c-about-s2',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'about_s2',t));
+  }
+  if(p==='how'){
+    registerCanvas('c-hiw1',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'vision',t));
+    registerCanvas('c-hiw2',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'analysis',t));
+    registerCanvas('c-hiw3',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'output',t));
+  }
+  if(p==='feat'){
+    registerCanvas('c-feat1',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'feat_personalization',t));
+    registerCanvas('c-feat2',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'feat_color',t));
+    registerCanvas('c-feat3',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'feat_layout',t));
+  }
+  if(p==='res'){
+    registerCanvas('c-res1',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'res_data',t));
+    registerCanvas('c-res2',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'res_neuro',t));
+    registerCanvas('c-res3',(ctx,W,H,t)=>drawAnalytical(ctx,W,H,'res_wellbeing',t));
+  }
+  
+  if(!rafRunning) runAnimLoop();
+}
+
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    initCanvasesForPage('home');
+    runAnimLoop();
+  },200);
+});
+
+window.addEventListener('scroll', ()=>{ triggerReveals(); triggerMetrics(); });
+setTimeout(triggerReveals, 500);
+</script>
+</body>
+</html>
